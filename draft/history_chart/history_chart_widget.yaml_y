@@ -1,0 +1,107 @@
+---
+# History-Chart als EINZELNES WIDGET (Chart-Flaeche + 3 Zeitraum-Buttons)
+# zum Platzieren auf einer BEREITS VORHANDENEN Seite. Per !include direkt
+# als Element in die widgets:-Liste dieser Seite einfuegen (siehe unten) -
+# erzeugt bewusst KEINE eigene "pages: - id: ..."-Definition, um das
+# Page-Merge-Problem von main_page nicht zu wiederholen.
+#
+# Voraussetzung: history_chart.yaml mit DERSELBEN uid muss ebenfalls
+# eingebunden sein (liefert Sensor, Globals, Scripts, Chart-Erzeugung).
+#
+# vars:
+#   uid:                   dieselbe uid wie bei history_chart.yaml (Pflicht)
+#   width / height:        Groesse des Gesamt-Widgets, Default 300 / 260
+#   chart_height:          Hoehe des Chart-Teils (Rest darunter = Buttons),
+#                         Default 200. Muss kleiner als height sein!
+#   button_y:              Y-Position der Zeitraum-Buttons, Default 210
+#                         (per Hand > chart_height setzen - ESPHome kann
+#                         das nicht automatisch aus chart_height berechnen)
+#   range_a/b/c_label:    Beschriftung der 3 Zeitraum-Buttons
+#   range_a/b/c_minutes:  zugehoeriger Zeitraum in Minuten, Default 60/360/1440
+#
+# Beispiel-Einbindung (in DEINER Geraete-YAML, in einer BESTEHENDEN Seite):
+#
+#   lvgl:
+#     pages:
+#       - id: meine_bestehende_seite
+#         widgets:
+#           - label:
+#               text: "Meine Seite"
+#           - !include
+#               file: esphome-modular-lvgl-buttons/ui/history_chart/history_chart_widget.yaml
+#               vars:
+#                 uid: wz_klima
+#           - ... weitere eigene Widgets ...
+#
+# Mehrere Charts auf derselben oder verschiedenen Seiten: dieses Include
+# einfach mehrfach mit unterschiedlicher uid wiederholen (und jeweils ein
+# passendes history_chart.yaml + optional series2/3 dazu einbinden).
+
+substitutions:
+  width: "300"
+  height: "260"
+  chart_height: "200"
+  button_y: "210"
+  range_a_label: "1 Std"
+  range_a_minutes: "60"
+  range_b_label: "6 Std"
+  range_b_minutes: "360"
+  range_c_label: "24 Std"
+  range_c_minutes: "1440"
+
+obj:
+  id: ${uid}_widget_root
+  width: ${width}
+  height: ${height}
+  bg_color: 0
+  border_width: 0
+  pad_all: 0
+  widgets:
+    - obj:
+        id: ${uid}_placeholder
+        x: 0
+        y: 0
+        width: 100%
+        height: ${chart_height}
+        bg_color: 0
+        border_width: 0
+        pad_all: 0
+    - button:
+        x: 0
+        y: ${button_y}
+        width: 30%
+        height: 40
+        on_press:
+          - script.execute:
+              id: ${uid}_set_range
+              minutes: ${range_a_minutes}
+        widgets:
+          - label:
+              align: CENTER
+              text: ${range_a_label}
+    - button:
+        x: 35%
+        y: ${button_y}
+        width: 30%
+        height: 40
+        on_press:
+          - script.execute:
+              id: ${uid}_set_range
+              minutes: ${range_b_minutes}
+        widgets:
+          - label:
+              align: CENTER
+              text: ${range_b_label}
+    - button:
+        x: 70%
+        y: ${button_y}
+        width: 30%
+        height: 40
+        on_press:
+          - script.execute:
+              id: ${uid}_set_range
+              minutes: ${range_c_minutes}
+        widgets:
+          - label:
+              align: CENTER
+              text: ${range_c_label}

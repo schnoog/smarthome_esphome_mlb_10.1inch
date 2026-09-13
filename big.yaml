@@ -574,23 +574,28 @@ packages:
 # ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚══════╝    ╚══════╝
 #                                              
 
-
   wz_klima: !include
     file: draft/history_chart/history_chart.yaml
     vars:
       uid: wz_klima
-      row: 0
-      column: 0
-      title: "Wohnzimmer Klima"
-      icon: $mdi_chart_line
       entity_1: "sensor.cyd1_temperatur_2"
       color_1: "0x3498DB"
-      y_min: 10
-      y_max: 30
-      tile_x: 10
-      tile_y: 10
-
+      y_min: "10"
+      y_max: "30"
       ha_base_url: "http://192.168.178.119:8123"
+      history_lookback_hours: "6"
+      history_max_response_bytes: "245760"   # ggf. an deinen Sensor anpassen
+
+
+
+  wz_klima_widget: !include
+    file: draft/history_chart/history_chart_widget.yaml
+    vars:
+      uid: wz_klima
+      row: 0
+      column: 0
+      row_span: 3
+      column_span: 6
       page_id: "second_page"
 
 
@@ -710,22 +715,7 @@ lvgl:
       layout: 4x9
       styles: page_style
       <<: !include esphome-modular-lvgl-buttons/common/swipe_navigation.yaml      
-      widgets:
-        # You can use the package section above to add prebuilt button types or build your own custom button from scratch here.
-        - container:
-            id: button_13
-            grid_cell_x_align: stretch
-            grid_cell_y_align: stretch
-            grid_cell_row_pos: 3
-            grid_cell_column_pos: 8
-            grid_cell_row_span: 1
-            grid_cell_column_span: 1
-            widgets:
-              - label:
-                  text_font: $text_font
-                  align: center
-                  text_color: white
-                  text: ""
+
   top_layer:
     widgets:
       - obj:

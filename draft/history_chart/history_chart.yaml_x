@@ -1,19 +1,22 @@
 ---
-# History-Chart: Datenlogik + LVGL-Chart-Erzeugung fuer Sensor 1 (Pflicht).
-# Holt beim Boot echte Historie von Home Assistant (REST History API) und
-# puffert danach live weiter. Enthaelt SELBST KEINE Seite und KEINE
-# Kachel - das eigentliche Chart-Widget kommt aus history_chart_widget.yaml,
-# das du per !include direkt in eine BESTEHENDE Seite einfuegst (siehe
-# example_wiring.yaml). Diese Trennung existiert bewusst: Eine eigene
-# "pages: - id: ..."-Definition ueber mehrere !includes/packages hinweg
-# hat bei main_page schon mal zu kaputter Grid-Validierung bei ANDEREN,
-# unabhaengigen Widgets gefuehrt (vermutlicher Merge-Effekt) - das
-# reine widgets:-Fragment umgeht das komplett.
+# History-Chart: Kachel + Detailseite mit LVGL-Chart (Sensor 1, Pflicht)
+# und Zeitraum-Buttons. Holt beim Boot echte Historie von Home Assistant
+# (REST History API) und puffert danach live weiter.
 #
 # vars:
-#   uid:                   eindeutige ID, z.B. "wz_klima"        (Pflicht,
-#                         MUSS mit der uid von history_chart_widget.yaml
-#                         uebereinstimmen!)
+#   uid:                 eindeutige ID, z.B. "wz_klima"        (Pflicht)
+#
+#   WICHTIG: Dieses File haengt sich NICHT mehr automatisch in deine
+#   main_page ein (das hat bei manchen main_page-Layouts zu kaputter
+#   Grid-Validierung bei ANDEREN, unabhaengigen Widgets gefuehrt - vermutlich
+#   ein Merge-Effekt beim Zusammenfuehren von "pages: id: main_page" ueber
+#   mehrere !include/packages hinweg). Die Kachel, die zu ${uid}_page
+#   navigiert, baust du dir selbst direkt in deiner main_page - Beispiel-
+#   Snippet dazu in example_wiring.yaml.
+#
+#   back_page_id:         Ziel-Seite des Zurueck-Buttons, Default "main_page"
+#   title:                Ueberschrift Detailseite, Default "Verlauf"
+#   icon:                 MDI-Icon fuer die Kachel, z.B. $mdi_chart_line
 #   entity_1:             HA entity_id, Sensor 1                (Pflicht)
 #   color_1:              Linienfarbe Sensor 1, Default "0x3498DB"
 #   scale_1:              Multiplikator vor dem Runden (LVGL-Chart kennt
@@ -23,23 +26,12 @@
 #   sample_interval_s:    dasselbe in Sekunden als Zahl, Default "60"
 #   buffer_points:        max. gepufferte Werte, Default "1440" (=24h bei 60s)
 #   point_count:          auf dem Display gezeichnete Punkte, Default "60"
-#                         (MUSS mit point_count in history_chart_widget.yaml
-#                         uebereinstimmen!)
+#   chart_x/y/width/height:  Position + Groesse des Chart-Bereichs auf der
+#                         Detailseite - an dein Display anpassen!
+#   range_a/b/c_label:    Beschriftung der 3 Zeitraum-Buttons
+#   range_a/b/c_minutes:  zugehoeriger Zeitraum in Minuten, Default 60/360/1440
 #   ha_base_url:          z.B. "http://homeassistant.local:8123"  (Pflicht
 #                         fuer die Historie-Abfrage)
-#   history_lookback_hours:  wie weit rueckwirkend Historie geladen wird,
-#                         Default "6". Braucht eine synchronisierte
-#                         Systemzeit (irgendeine time:-Komponente, z.B.
-#                         sntp) - ohne die wird die Abfrage uebersprungen
-#                         und beim naechsten Interval-Tick erneut versucht.
-#   history_max_response_bytes:  Puffer fuer die HTTP-Antwort UND Basis fuer
-#                         die JSON-DOM-Groesse (wird intern *2 genutzt),
-#                         Default "40960". Bei "IncompleteInput"-Fehlern im
-#                         Log: history_lookback_hours verkleinern (wirkt
-#                         staerker) und/oder diesen Wert erhoehen. Je nach
-#                         Aktualisierungsrate des Sensors kann die 24h-
-#                         Historie schnell >100 KB gross werden - deshalb
-#                         der eingegrenzte Zeitraum statt HAs Standard "1 Tag".
 #   history_max_response_bytes:  Puffer fuer die HTTP-Antwort, Default "24576"
 #
 # Voraussetzungen in DEINER Geraete-YAML (einmalig, nicht hier):
@@ -73,6 +65,9 @@
 # ---------------------------------------------------------------
 
 substitutions:
+  back_page_id: "main_page"
+  title: "Verlauf"
+  icon: $mdi_chart_line
   color_1: "0x3498DB"
   scale_1: "1"
   y_min: "0"
@@ -81,10 +76,17 @@ substitutions:
   sample_interval_s: "60"
   buffer_points: "1440"
   point_count: "60"
-  history_max_response_bytes: "40960"
-  history_lookback_hours: "6"
-
-
+  chart_x: "10"
+  chart_y: "60"
+  chart_width: "300"
+  chart_height: "260"
+  range_a_label: "1 Std"
+  range_a_minutes: "60"
+  range_b_label: "6 Std"
+  range_b_minutes: "360"
+  range_c_label: "24 Std"
+  range_c_minutes: "1440"
+  history_max_response_bytes: "245760"
 
 globals:
   - id: ${uid}_chart
@@ -164,66 +166,50 @@ script:
 
   - id: ${uid}_fetch_history_1
     then:
-      - if:
-          condition:
-            lambda: "return ::time(nullptr) > 1700000000;"  # Systemzeit synchronisiert?
-          then:
-            - http_request.get:
-                url: !lambda |-
-                  time_t now_epoch = ::time(nullptr);
-                  time_t start_epoch = now_epoch - (${history_lookback_hours} * 3600);
-                  struct tm tm_start;
-                  gmtime_r(&start_epoch, &tm_start);
-                  char start_buf[25];
-                  strftime(start_buf, sizeof(start_buf), "%Y-%m-%dT%H:%M:%SZ", &tm_start);
-                  return std::string("${ha_base_url}") + "/api/history/period/" + start_buf
-                    + "?filter_entity_id=${entity_1}&minimal_response&no_attributes";
-                request_headers:
-                  Authorization: !secret ha_long_lived_token
-                max_response_buffer_size: ${history_max_response_bytes}
-                capture_response: true
-                on_response:
-                  then:
-                    - lambda: |-
-                        if (response->status_code != 200) {
-                          ESP_LOGW("history_chart", "HA-History (${uid}, Sensor 1): HTTP %d", response->status_code);
-                          return;
-                        }
-                        DynamicJsonDocument doc(${history_max_response_bytes} * 2);
-                        DeserializationError err = deserializeJson(doc, body);
-                        if (err) {
-                          ESP_LOGW("history_chart", "HA-History (${uid}, Sensor 1): JSON-Fehler: %s (history_lookback_hours verkleinern oder history_max_response_bytes vergroessern)", err.c_str());
-                          return;
-                        }
-                        JsonArray outer = doc.as<JsonArray>();
-                        if (outer.size() == 0) {
-                          ESP_LOGW("history_chart", "HA-History (${uid}, Sensor 1): leere Antwort");
-                          return;
-                        }
-                        JsonArray states = outer[0].as<JsonArray>();
-                        auto &buf = id(${uid}_buf1);
-                        buf.clear();
-                        for (JsonObject st : states) {
-                          const char *state_str = st["state"] | "";
-                          if (state_str[0] == '\0'
-                              || strcmp(state_str, "unknown") == 0
-                              || strcmp(state_str, "unavailable") == 0) {
-                            continue;
-                          }
-                          buf.push_back((float) atof(state_str) * ${scale_1});
-                          if (buf.size() > ${buffer_points}) buf.erase(buf.begin());
-                        }
-                        ESP_LOGI("history_chart", "${uid}: %d Verlaufswerte (Sensor 1) von Home Assistant geladen", (int) buf.size());
-                    - script.execute: ${uid}_redraw_1
-                on_error:
-                  then:
-                    - logger.log:
-                        format: "HA-History (${uid}, Sensor 1): Anfrage fehlgeschlagen"
-                        tag: "history_chart"
-          else:
-            - logger.log:
-                format: "${uid}: Systemzeit noch nicht synchron - History-Abfrage (Sensor 1) uebersprungen, naechster Versuch folgt"
-                tag: "history_chart"
+      - http_request.get:
+          url: "${ha_base_url}/api/history/period?filter_entity_id=${entity_1}&minimal_response&no_attributes"
+          request_headers:
+            Authorization: !secret ha_long_lived_token
+          max_response_buffer_size: ${history_max_response_bytes}
+          capture_response: true
+          on_response:
+            then:
+              - lambda: |-
+                  if (response->status_code != 200) {
+                    ESP_LOGW("history_chart", "HA-History (${uid}, Sensor 1): HTTP %d", response->status_code);
+                    return;
+                  }
+                  DynamicJsonDocument doc(${history_max_response_bytes});
+                  DeserializationError err = deserializeJson(doc, body);
+                  if (err) {
+                    ESP_LOGW("history_chart", "HA-History (${uid}, Sensor 1): JSON-Fehler: %s", err.c_str());
+                    return;
+                  }
+                  JsonArray outer = doc.as<JsonArray>();
+                  if (outer.size() == 0) {
+                    ESP_LOGW("history_chart", "HA-History (${uid}, Sensor 1): leere Antwort");
+                    return;
+                  }
+                  JsonArray states = outer[0].as<JsonArray>();
+                  auto &buf = id(${uid}_buf1);
+                  buf.clear();
+                  for (JsonObject st : states) {
+                    const char *state_str = st["state"] | "";
+                    if (state_str[0] == '\0'
+                        || strcmp(state_str, "unknown") == 0
+                        || strcmp(state_str, "unavailable") == 0) {
+                      continue;
+                    }
+                    buf.push_back((float) atof(state_str) * ${scale_1});
+                    if (buf.size() > ${buffer_points}) buf.erase(buf.begin());
+                  }
+                  ESP_LOGI("history_chart", "${uid}: %d Verlaufswerte (Sensor 1) von Home Assistant geladen", (int) buf.size());
+              - script.execute: ${uid}_redraw_1
+          on_error:
+            then:
+              - logger.log:
+                  format: "HA-History (${uid}, Sensor 1): Anfrage fehlgeschlagen"
+                  tag: "history_chart"
 
 esphome:
   on_boot:
@@ -254,7 +240,7 @@ esphome:
 # oder unter SDL noch keine Route zu ha_base_url), einfach alle 5 Minuten
 # erneut versuchen - hoert automatisch auf, sobald Daten da sind.
 interval:
-  - interval: 5min
+  - interval: 2min
     then:
       - if:
           condition:
@@ -265,7 +251,72 @@ interval:
                 tag: "history_chart"
             - script.execute: ${uid}_fetch_history_1
 
-# Die eigentlichen LVGL-Widgets (Chart-Platzhalter + Zeitraum-Buttons)
-# liegen jetzt in history_chart_widget.yaml - dort per !include direkt
-# als Element in die widgets:-Liste EINER BESTEHENDEN Seite einfuegen,
-# siehe example_wiring.yaml.
+lvgl:
+  pages:
+    - id: ${uid}_page
+      widgets:
+        - button:
+            x: 10
+            y: 10
+            width: 50
+            height: 40
+            on_press:
+              - lvgl.page.show: ${back_page_id}
+            widgets:
+              - label:
+                  align: CENTER
+                  text_font: ${icon_font}
+                  text: $mdi_arrow_left
+        - label:
+            x: 70
+            y: 20
+            text_font: ${text_font}
+            text: ${title}
+        - obj:
+            id: ${uid}_placeholder
+            x: ${chart_x}
+            y: ${chart_y}
+            width: ${chart_width}
+            height: ${chart_height}
+            bg_color: 0
+            border_width: 0
+            pad_all: 0
+        - button:
+            x: ${chart_x}
+            y: 330
+            width: 90
+            height: 40
+            on_press:
+              - script.execute:
+                  id: ${uid}_set_range
+                  minutes: ${range_a_minutes}
+            widgets:
+              - label:
+                  align: CENTER
+                  text: ${range_a_label}
+        - button:
+            x: 110
+            y: 330
+            width: 90
+            height: 40
+            on_press:
+              - script.execute:
+                  id: ${uid}_set_range
+                  minutes: ${range_b_minutes}
+            widgets:
+              - label:
+                  align: CENTER
+                  text: ${range_b_label}
+        - button:
+            x: 210
+            y: 330
+            width: 90
+            height: 40
+            on_press:
+              - script.execute:
+                  id: ${uid}_set_range
+                  minutes: ${range_c_minutes}
+            widgets:
+              - label:
+                  align: CENTER
+                  text: ${range_c_label}

@@ -1,0 +1,113 @@
+---
+# History-Chart als Widget (Chart-Flaeche + 3 Zeitraum-Buttons) zum
+# Platzieren auf einer bestehenden Seite - Einbindung analog
+# page_button.yaml ueber packages: mit page_id/row/column/row_span/
+# column_span (NICHT inline im lvgl-Abschnitt).
+#
+# Voraussetzung: history_chart.yaml mit DERSELBEN uid muss ebenfalls
+# unter packages: eingebunden sein (liefert Sensor, Globals, Scripts,
+# Chart-Erzeugung per Lambda).
+#
+# vars:
+#   uid:                   dieselbe uid wie bei history_chart.yaml (Pflicht)
+#   page_id:               id der Seite, auf der das Chart erscheinen soll,
+#                         z.B. "main_page"                        (Pflicht)
+#   row / column:          Grid-Position auf dieser Seite            (Pflicht)
+#   row_span / column_span:  Grid-Ausdehnung, Default 1 / 1
+#   chart_height:          Hoehe des Chart-Teils innerhalb der Zelle
+#                         (Rest darunter = Zeitraum-Buttons), Default 200
+#   button_y:              Y-Position der Zeitraum-Buttons INNERHALB der
+#                         Zelle, Default 210 (per Hand > chart_height
+#                         halten - ESPHome berechnet das nicht automatisch)
+#   range_a/b/c_label:    Beschriftung der 3 Zeitraum-Buttons
+#   range_a/b/c_minutes:  zugehoeriger Zeitraum in Minuten, Default 60/360/1440
+#
+# Beispiel-Einbindung (in DEINER Geraete-YAML, analog page_button_next):
+#
+#   packages:
+#     wz_klima_widget: !include
+#       file: esphome-modular-lvgl-buttons/ui/history_chart/history_chart_widget.yaml
+#       vars:
+#         uid: wz_klima
+#         page_id: "main_page"
+#         row: 3
+#         column: 8
+#         row_span: 2
+#         column_span: 3
+
+substitutions:
+  row_span: "1"
+  column_span: "1"
+  chart_height: "200"
+  button_y: "210"
+  range_a_label: "1 Std"
+  range_a_minutes: "60"
+  range_b_label: "6 Std"
+  range_b_minutes: "360"
+  range_c_label: "24 Std"
+  range_c_minutes: "1440"
+
+lvgl:
+  pages:
+    - id: !extend ${page_id | default("main_page")}
+      widgets:
+        - container:
+            id: ${uid}_widget_root
+            grid_cell_row_pos: ${row}
+            grid_cell_column_pos: ${column}
+            grid_cell_row_span: ${row_span | default(1)}
+            grid_cell_column_span: ${column_span | default(1)}
+            grid_cell_x_align: stretch
+            grid_cell_y_align: stretch
+            bg_color: 0
+            border_width: 0
+            pad_all: 0
+            widgets:
+              - obj:
+                  id: ${uid}_placeholder
+                  x: 0
+                  y: 0
+                  width: 100%
+                  height: ${chart_height}
+                  bg_color: 0
+                  border_width: 0
+                  pad_all: 0
+              - button:
+                  x: 0
+                  y: ${button_y}
+                  width: 30%
+                  height: 40
+                  on_press:
+                    - script.execute:
+                        id: ${uid}_set_range
+                        minutes: ${range_a_minutes}
+                  widgets:
+                    - label:
+                        align: CENTER
+                        text: ${range_a_label}
+              - button:
+                  x: 35%
+                  y: ${button_y}
+                  width: 30%
+                  height: 40
+                  on_press:
+                    - script.execute:
+                        id: ${uid}_set_range
+                        minutes: ${range_b_minutes}
+                  widgets:
+                    - label:
+                        align: CENTER
+                        text: ${range_b_label}
+              - button:
+                  x: 70%
+                  y: ${button_y}
+                  width: 30%
+                  height: 40
+                  on_press:
+                    - script.execute:
+                        id: ${uid}_set_range
+                        minutes: ${range_c_minutes}
+                  widgets:
+                    - label:
+                        align: CENTER
+                        text: ${range_c_label}
