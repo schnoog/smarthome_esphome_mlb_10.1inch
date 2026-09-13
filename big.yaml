@@ -53,6 +53,21 @@ logger:
   hardware_uart: UART0
 
 
+
+
+button:
+  - platform: template
+    name: "Display vorherige Seite"
+    icon: "mdi:arrow-left"
+    on_press:
+      - lvgl.page.previous
+
+  - platform: template
+    name: "Display nächste Seite"
+    icon: "mdi:arrow-right"
+    on_press:
+      - lvgl.page.next
+
 #  #####  ### ######         #####                               
 # #     #  #  #     #       #     # #      # ###### #    # ##### 
 # #        #  #     #       #       #      # #      ##   #   #   
@@ -348,8 +363,8 @@ packages:
       entity_id: "script.ma_radio_badenfm_all"
       row: 1
       column: 6
-      text: "BadenFM"
-#      icon: $mdi_radio
+      text: "Baden FM"
+      icon: $mdi_radio
       page_id: "main_page"
       background: bg_badenfm
 
@@ -361,7 +376,7 @@ packages:
       row: 1
       column: 7
       text: "Oldie Antenne"
-#      icon: $mdi_radio
+      icon: $mdi_radio
       page_id: "main_page"
       background: bg_oldieantenne
 
@@ -373,7 +388,7 @@ packages:
       row: 1
       column: 8
       text: "Radio Seefunk"
-#      icon: $mdi_radio
+      icon: $mdi_radio
       page_id: "main_page"
       background: bg_seefunk
 
@@ -416,7 +431,7 @@ packages:
       row: 2
       column: 6
       text: "SWR3"
-#      icon: $mdi_radio
+      icon: $mdi_radio
       page_id: "main_page"
       background: bg_swr3
 
@@ -428,7 +443,7 @@ packages:
       row: 2
       column: 7
       text: "SWR1"
-#      icon: $mdi_radio
+      icon: $mdi_radio
       page_id: "main_page"
       background: bg_swr1 
 
@@ -440,7 +455,7 @@ packages:
       row: 2
       column: 8
       text: "SWR4"
-#      icon: $mdi_radio
+      icon: $mdi_radio
       page_id: "main_page"
       background: bg_swr4  
 
@@ -521,7 +536,7 @@ packages:
       column: 5
       column_span: 1      
       text: "Vol -"
- #     icon: $mdi_volume_minus
+      icon: $mdi_music
       page_id: "main_page"
       background: bg_avr_l
 
@@ -533,7 +548,7 @@ packages:
       row: 3
       column: 6
       text: "Mute"
-#      icon: $mdi_volume_off
+      icon: $mdi_music
       page_id: "main_page"
       background: bg_avr_m
 
@@ -546,7 +561,7 @@ packages:
       column: 7
       column_span: 1      
       text: "Vol +"
-#      icon: $mdi_volume_plus
+      icon: $mdi_music
       page_id: "main_page"
       background: bg_avr_r
 
@@ -560,7 +575,23 @@ packages:
 #                                              
 
 
+  wz_klima: !include
+    file: draft/history_chart/history_chart.yaml
+    vars:
+      uid: wz_klima
+      row: 0
+      column: 0
+      title: "Wohnzimmer Klima"
+      icon: $mdi_chart_line
+      entity_1: "sensor.cyd1_temperatur_2"
+      color_1: "0x3498DB"
+      y_min: 10
+      y_max: 30
+      tile_x: 10
+      tile_y: 10
 
+      ha_base_url: "http://192.168.178.119:8123"
+      page_id: "second_page"
 
 
 #    .aMMMb  .aMMMb  dMMMMMMMMb dMMMMMP dMMMMb  .aMMMb 
@@ -779,6 +810,7 @@ font:
       $mdi_lamp,  # mdi-lamp - table lamp
       $mdi_led_strip,  # mdi-led-strip - LED strip light
       $mdi_lightbulb,  # mdi-lightbulb - generic bulb icon
+      $mdi_music,      
       $mdi_page_next,
       $mdi_page_previous,
       $mdi_phone,

@@ -1,0 +1,322 @@
+---
+# History-Chart: Kachel + Detailseite mit LVGL-Chart (Sensor 1, Pflicht)
+# und Zeitraum-Buttons. Holt beim Boot echte Historie von Home Assistant
+# (REST History API) und puffert danach live weiter.
+#
+# vars:
+#   uid:                 eindeutige ID, z.B. "wz_klima"        (Pflicht)
+#
+#   WICHTIG: Dieses File haengt sich NICHT mehr automatisch in deine
+#   main_page ein (das hat bei manchen main_page-Layouts zu kaputter
+#   Grid-Validierung bei ANDEREN, unabhaengigen Widgets gefuehrt - vermutlich
+#   ein Merge-Effekt beim Zusammenfuehren von "pages: id: main_page" ueber
+#   mehrere !include/packages hinweg). Die Kachel, die zu ${uid}_page
+#   navigiert, baust du dir selbst direkt in deiner main_page - Beispiel-
+#   Snippet dazu in example_wiring.yaml.
+#
+#   back_page_id:         Ziel-Seite des Zurueck-Buttons, Default "main_page"
+#   title:                Ueberschrift Detailseite, Default "Verlauf"
+#   icon:                 MDI-Icon fuer die Kachel, z.B. $mdi_chart_line
+#   entity_1:             HA entity_id, Sensor 1                (Pflicht)
+#   color_1:              Linienfarbe Sensor 1, Default "0x3498DB"
+#   scale_1:              Multiplikator vor dem Runden (LVGL-Chart kennt
+#                         nur Ganzzahlen!), Default 1
+#   y_min / y_max:        Y-Achsenbereich (im skalierten Wertebereich), Default 0/100
+#   sample_interval:      Mittelungsintervall als Dauer, Default "60s"
+#   sample_interval_s:    dasselbe in Sekunden als Zahl, Default "60"
+#   buffer_points:        max. gepufferte Werte, Default "1440" (=24h bei 60s)
+#   point_count:          auf dem Display gezeichnete Punkte, Default "60"
+#   chart_x/y/width/height:  Position + Groesse des Chart-Bereichs auf der
+#                         Detailseite - an dein Display anpassen!
+#   range_a/b/c_label:    Beschriftung der 3 Zeitraum-Buttons
+#   range_a/b/c_minutes:  zugehoeriger Zeitraum in Minuten, Default 60/360/1440
+#   ha_base_url:          z.B. "http://homeassistant.local:8123"  (Pflicht
+#                         fuer die Historie-Abfrage)
+#   history_max_response_bytes:  Puffer fuer die HTTP-Antwort, Default "24576"
+#
+# Voraussetzungen in DEINER Geraete-YAML (einmalig, nicht hier):
+#   esphome:
+#     platformio_options:
+#       build_flags:
+#         - "-D LV_USE_CHART=1"   # siehe Hinweis unten zu LVGL-Charts
+#   http_request:
+#   wifi:                          # (habt ihr sowieso schon)
+#
+# In secrets.yaml:
+#   ha_long_lived_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9....."
+#   (Wortlaut inkl. "Bearer " davor - wird 1:1 als Header-Wert verwendet)
+#
+# ---------------------------------------------------------------
+# HINWEIS LVGL-Chart: ESPHome liefert den LVGL-Widget-Typ "chart"
+# nicht deklarativ aus (Stand esphome/esphome#15895 - LV_USE_CHART
+# wird in der generierten lv_conf.h auf 0 gesetzt). Das Chart wird
+# daher per Lambda direkt ueber die LVGL-C-API erzeugt. Ob der oben
+# genannte build_flags-Eintrag bei DEINER ESPHome-Version tatsaechlich
+# zieht, ist nicht garantiert - deshalb unbedingt zuerst per SDL
+# testen, bevor geflasht wird.
+#
+# HINWEIS Historie: Home Assistant liefert hier standardmaessig die
+# letzten 24h (kein Start-Zeitstempel noetig, dafuer braucht's auch
+# kein time:-Component auf dem ESP32). Fuer sehr "geschwaetzige"
+# Sensoren (viele Aenderungen/Minute) kann die Antwort gross werden -
+# im Zweifel history_max_response_bytes erhoehen; wird der Puffer
+# ueberschritten, bricht das Parsen sauber ab und es wird nur lokal
+# ab jetzt weiter gepuffert (kein Absturz, siehe Log-Ausgabe).
+# ---------------------------------------------------------------
+
+substitutions:
+  back_page_id: "main_page"
+  title: "Verlauf"
+  icon: $mdi_chart_line
+  color_1: "0x3498DB"
+  scale_1: "1"
+  y_min: "0"
+  y_max: "100"
+  sample_interval: "60s"
+  sample_interval_s: "60"
+  buffer_points: "1440"
+  point_count: "60"
+  chart_x: "10"
+  chart_y: "60"
+  chart_width: "300"
+  chart_height: "260"
+  range_a_label: "1 Std"
+  range_a_minutes: "60"
+  range_b_label: "6 Std"
+  range_b_minutes: "360"
+  range_c_label: "24 Std"
+  range_c_minutes: "1440"
+  history_max_response_bytes: "245760"
+
+globals:
+  - id: ${uid}_chart
+    type: lv_obj_t *
+    initial_value: "nullptr"
+    restore_value: no
+  - id: ${uid}_series1
+    type: void *
+    initial_value: "nullptr"
+    restore_value: no
+  - id: ${uid}_buf1
+    type: std::vector<float>
+  - id: ${uid}_range_minutes
+    type: int
+    initial_value: "${range_b_minutes}"
+    restore_value: no
+
+http_request:
+
+sensor:
+  - platform: homeassistant
+    id: ${uid}_sensor_1
+    entity_id: ${entity_1}
+    internal: true
+    force_update: true
+    filters:
+      - throttle_average: ${sample_interval}
+    on_value:
+      then:
+        - lambda: |-
+            id(${uid}_buf1).push_back(x * ${scale_1});
+            if (id(${uid}_buf1).size() > ${buffer_points}) {
+              id(${uid}_buf1).erase(id(${uid}_buf1).begin());
+            }
+        - script.execute: ${uid}_redraw_1
+
+script:
+  - id: ${uid}_redraw_1
+    then:
+      - lambda: |-
+          lv_obj_t *chart = (lv_obj_t *) id(${uid}_chart);
+          lv_chart_series_t *ser = (lv_chart_series_t *) id(${uid}_series1);
+          if (chart == nullptr || ser == nullptr) return;
+          auto &buf = id(${uid}_buf1);
+          int have = (int) buf.size();
+          if (have == 0) return;
+          int range_min = id(${uid}_range_minutes);
+          int wanted = (range_min * 60) / ${sample_interval_s};
+          int use = wanted < have ? wanted : have;
+          if (use < 1) use = 1;
+          int pc = ${point_count};
+          for (int i = 0; i < pc; i++) {
+            int start_idx = have - use + (i * use) / pc;
+            int end_idx   = have - use + ((i + 1) * use) / pc;
+            if (start_idx < 0) start_idx = 0;
+            if (end_idx <= start_idx) end_idx = start_idx + 1;
+            if (end_idx > have) end_idx = have;
+            float sum = 0;
+            int n = 0;
+            for (int j = start_idx; j < end_idx; j++) {
+              sum += buf[j];
+              n++;
+            }
+            float val = n > 0 ? (sum / n) : buf[have - 1];
+            lv_chart_set_value_by_id(chart, ser, i, (int32_t) val);
+          }
+          lv_obj_invalidate(chart);
+
+  - id: ${uid}_set_range
+    parameters:
+      minutes: int
+    then:
+      - globals.set:
+          id: ${uid}_range_minutes
+          value: !lambda "return minutes;"
+      - script.execute: ${uid}_redraw_1
+
+  - id: ${uid}_fetch_history_1
+    then:
+      - http_request.get:
+          url: "${ha_base_url}/api/history/period?filter_entity_id=${entity_1}&minimal_response&no_attributes"
+          request_headers:
+            Authorization: !secret ha_long_lived_token
+          max_response_buffer_size: ${history_max_response_bytes}
+          capture_response: true
+          on_response:
+            then:
+              - lambda: |-
+                  if (response->status_code != 200) {
+                    ESP_LOGW("history_chart", "HA-History (${uid}, Sensor 1): HTTP %d", response->status_code);
+                    return;
+                  }
+                  DynamicJsonDocument doc(${history_max_response_bytes});
+                  DeserializationError err = deserializeJson(doc, body);
+                  if (err) {
+                    ESP_LOGW("history_chart", "HA-History (${uid}, Sensor 1): JSON-Fehler: %s", err.c_str());
+                    return;
+                  }
+                  JsonArray outer = doc.as<JsonArray>();
+                  if (outer.size() == 0) {
+                    ESP_LOGW("history_chart", "HA-History (${uid}, Sensor 1): leere Antwort");
+                    return;
+                  }
+                  JsonArray states = outer[0].as<JsonArray>();
+                  auto &buf = id(${uid}_buf1);
+                  buf.clear();
+                  for (JsonObject st : states) {
+                    const char *state_str = st["state"] | "";
+                    if (state_str[0] == '\0'
+                        || strcmp(state_str, "unknown") == 0
+                        || strcmp(state_str, "unavailable") == 0) {
+                      continue;
+                    }
+                    buf.push_back((float) atof(state_str) * ${scale_1});
+                    if (buf.size() > ${buffer_points}) buf.erase(buf.begin());
+                  }
+                  ESP_LOGI("history_chart", "${uid}: %d Verlaufswerte (Sensor 1) von Home Assistant geladen", (int) buf.size());
+              - script.execute: ${uid}_redraw_1
+          on_error:
+            then:
+              - logger.log:
+                  format: "HA-History (${uid}, Sensor 1): Anfrage fehlgeschlagen"
+                  tag: "history_chart"
+
+esphome:
+  on_boot:
+    - priority: -100
+      then:
+        - lambda: |-
+            lv_obj_t *chart = lv_chart_create(id(${uid}_placeholder));
+            lv_obj_set_size(chart, lv_pct(100), lv_pct(100));
+            lv_chart_set_type(chart, LV_CHART_TYPE_LINE);
+            lv_chart_set_div_line_count(chart, 4, 0);
+            lv_chart_set_point_count(chart, ${point_count});
+            lv_chart_set_update_mode(chart, LV_CHART_UPDATE_MODE_SHIFT);
+            lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_X, 0, ${point_count});
+            lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_Y, ${y_min}, ${y_max});
+            id(${uid}_chart) = chart;
+            id(${uid}_series1) = (void *) lv_chart_add_series(
+              chart, lv_color_hex(${color_1}), LV_CHART_AXIS_PRIMARY_Y
+            );
+    - priority: -200
+      then:
+        - delay: 5s
+        - logger.log:
+            format: "${uid}: starte erste HA-History-Abfrage (Sensor 1)"
+            tag: "history_chart"
+        - script.execute: ${uid}_fetch_history_1
+
+# Falls die erste Abfrage fehlschlaegt (z.B. WLAN/HA noch nicht bereit,
+# oder unter SDL noch keine Route zu ha_base_url), einfach alle 5 Minuten
+# erneut versuchen - hoert automatisch auf, sobald Daten da sind.
+interval:
+  - interval: 2min
+    then:
+      - if:
+          condition:
+            lambda: "return id(${uid}_buf1).empty();"
+          then:
+            - logger.log:
+                format: "${uid}: Puffer (Sensor 1) noch leer - erneuter History-Versuch"
+                tag: "history_chart"
+            - script.execute: ${uid}_fetch_history_1
+
+lvgl:
+  pages:
+    - id: ${uid}_page
+      widgets:
+        - button:
+            x: 10
+            y: 10
+            width: 50
+            height: 40
+            on_press:
+              - lvgl.page.show: ${back_page_id}
+            widgets:
+              - label:
+                  align: CENTER
+                  text_font: ${icon_font}
+                  text: $mdi_arrow_left
+        - label:
+            x: 70
+            y: 20
+            text_font: ${text_font}
+            text: ${title}
+        - obj:
+            id: ${uid}_placeholder
+            x: ${chart_x}
+            y: ${chart_y}
+            width: ${chart_width}
+            height: ${chart_height}
+            bg_color: 0
+            border_width: 0
+            pad_all: 0
+        - button:
+            x: ${chart_x}
+            y: 330
+            width: 90
+            height: 40
+            on_press:
+              - script.execute:
+                  id: ${uid}_set_range
+                  minutes: ${range_a_minutes}
+            widgets:
+              - label:
+                  align: CENTER
+                  text: ${range_a_label}
+        - button:
+            x: 110
+            y: 330
+            width: 90
+            height: 40
+            on_press:
+              - script.execute:
+                  id: ${uid}_set_range
+                  minutes: ${range_b_minutes}
+            widgets:
+              - label:
+                  align: CENTER
+                  text: ${range_b_label}
+        - button:
+            x: 210
+            y: 330
+            width: 90
+            height: 40
+            on_press:
+              - script.execute:
+                  id: ${uid}_set_range
+                  minutes: ${range_c_minutes}
+            widgets:
+              - label:
+                  align: CENTER
+                  text: ${range_c_label}
