@@ -83,7 +83,8 @@ substitutions:
   point_count: "60"
   history_max_response_bytes: "40960"
   history_lookback_hours: "6"
-
+  unit_1: "°C"       # bei % bitte %% schreiben
+  y_tick_count: "5"   # Anzahl beschrifteter Linien inkl. Min/Max
 
 
 globals:
@@ -189,7 +190,7 @@ script:
                           ESP_LOGW("history_chart", "HA-History (${uid}, Sensor 1): HTTP %d", response->status_code);
                           return;
                         }
-                        DynamicJsonDocument doc(${history_max_response_bytes} * 2);
+                        JsonDocument doc;
                         DeserializationError err = deserializeJson(doc, body);
                         if (err) {
                           ESP_LOGW("history_chart", "HA-History (${uid}, Sensor 1): JSON-Fehler: %s (history_lookback_hours verkleinern oder history_max_response_bytes vergroessern)", err.c_str());
@@ -230,14 +231,37 @@ esphome:
     - priority: -100
       then:
         - lambda: |-
-            lv_obj_t *chart = lv_chart_create(id(${uid}_placeholder));
-            lv_obj_set_size(chart, lv_pct(100), lv_pct(100));
+            lv_obj_t *placeholder = id(${uid}_placeholder);
+            lv_obj_set_flex_flow(placeholder, LV_FLEX_FLOW_ROW);
+            lv_obj_set_style_pad_all(placeholder, 0, 0);
+            lv_obj_set_style_pad_column(placeholder, 4, 0);
+
+            // --- Achsen-Spalte: gestapelte Labels statt Scale-Widget ---
+            lv_obj_t *axis = lv_obj_create(placeholder);
+            lv_obj_remove_style_all(axis);
+            lv_obj_set_size(axis, 42, lv_pct(100));
+            lv_obj_set_flex_flow(axis, LV_FLEX_FLOW_COLUMN);
+            lv_obj_set_flex_align(axis, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_END, LV_FLEX_ALIGN_CENTER);
+            lv_obj_set_style_pad_all(axis, 0, 0);
+
+            const int n_labels = ${y_tick_count};
+            for (int i = n_labels - 1; i >= 0; i--) {
+              int val = ${y_min} + i * (${y_max} - ${y_min}) / (n_labels - 1);
+              lv_obj_t *lbl = lv_label_create(axis);
+              lv_label_set_text_fmt(lbl, "%d${unit_1}", val);
+            }
+
+            // --- Chart ---
+            lv_obj_t *chart = lv_chart_create(placeholder);
+            lv_obj_set_flex_grow(chart, 1);
+            lv_obj_set_height(chart, lv_pct(100));
             lv_chart_set_type(chart, LV_CHART_TYPE_LINE);
-            lv_chart_set_div_line_count(chart, 4, 0);
+            lv_chart_set_div_line_count(chart, n_labels - 1, 0);
             lv_chart_set_point_count(chart, ${point_count});
             lv_chart_set_update_mode(chart, LV_CHART_UPDATE_MODE_SHIFT);
             lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_X, 0, ${point_count});
             lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_Y, ${y_min}, ${y_max});
+
             id(${uid}_chart) = chart;
             id(${uid}_series1) = (void *) lv_chart_add_series(
               chart, lv_color_hex(${color_1}), LV_CHART_AXIS_PRIMARY_Y
