@@ -587,7 +587,6 @@ packages:
       history_max_response_bytes: "245760"   # ggf. an deinen Sensor anpassen
 
 
-
   wz_klima_widget: !include
     file: draft/history_chart/history_chart_widget.yaml
     vars:
@@ -597,9 +596,11 @@ packages:
       row_span: 4
       column_span: 7
       chart_height: 400
-      button_y: 420
+      button_y: -50
+      chartname: "Temperaturverlauf"
+      chart_top_offset: 70      
       page_id: "second_page"
-
+      label_font: "nunito_48"
 
 #    .aMMMb  .aMMMb  dMMMMMMMMb dMMMMMP dMMMMb  .aMMMb 
 #   dMP"VMP dMP"dMP dMP"dMP"dMPdMP     dMP.dMP dMP"dMP 
@@ -745,7 +746,7 @@ lvgl:
                 text_font: mdi_icons_40
                 align: CENTER
 #                x: 0
-                y: 50
+                y: -20
                 text: $mdi_phone
           
 

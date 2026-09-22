@@ -1,0 +1,70 @@
+substitutions:
+  page_identifier2: "second_page"
+
+
+packages:
+# ██████╗  █████╗  ██████╗ ███████╗    ██████╗ 
+# ██╔══██╗██╔══██╗██╔════╝ ██╔════╝    ╚════██╗
+# ██████╔╝███████║██║  ███╗█████╗       █████╔╝
+# ██╔═══╝ ██╔══██║██║   ██║██╔══╝      ██╔═══╝ 
+# ██║     ██║  ██║╚██████╔╝███████╗    ███████╗
+# ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚══════╝    ╚══════╝
+#                                              
+
+  wz_klima: !include
+    file: ../draft/history_chart/history_chart.yaml
+    vars:
+      uid: wz_klima
+      entity_1: "sensor.cyd1_temperatur_2"
+      color_1: "0x3498DB"
+      y_min: "10"
+      y_max: "30"
+      ha_base_url: "http://192.168.178.119:8123"
+      history_lookback_hours: "6"
+      history_max_response_bytes: "245760"   # ggf. an deinen Sensor anpassen
+
+
+  wz_klima_widget: !include
+    file: ../draft/history_chart/history_chart_widget.yaml
+    vars:
+      uid: wz_klima
+      row: 0
+      column: 0
+      row_span: 4
+      column_span: 7
+      chart_height: 400
+      button_y: -50
+      chartname: "Temperaturverlauf"
+      chart_top_offset: 70      
+      page_id: ${page_identifier2}
+      label_font: "nunito_48"
+
+#    .aMMMb  .aMMMb  dMMMMMMMMb dMMMMMP dMMMMb  .aMMMb 
+#   dMP"VMP dMP"dMP dMP"dMP"dMPdMP     dMP.dMP dMP"dMP 
+#  dMP     dMMMMMP dMP dMP dMPdMMMP   dMMMMK" dMMMMMP  
+# dMP.aMP dMP dMP dMP dMP dMPdMP     dMP"AMF dMP dMP   
+# VMMMP" dMP dMP dMP dMP dMPdMMMMMP dMP dMP dMP dMP    
+#                                                      
+
+  camera:
+    !include
+      file: ../draft/camera_remote.yaml
+
+      vars:
+        uid: esp32s3cam
+
+        row: 0
+        column: 7
+        row_span: 2
+        column_span: 2
+
+        text: "Kamera"
+
+        image_width: 240
+        image_height: 176
+
+        camera_url: "http://192.168.178.119:8123/local/esp32s3cam.jpg"
+
+        update_interval: 15s
+        page_id: ${page_identifier2}
+

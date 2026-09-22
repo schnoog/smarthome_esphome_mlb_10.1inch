@@ -1,0 +1,435 @@
+# 
+# https://design.dev/tools/ascii-code-generator/
+# Substitution variables used through the codebase
+substitutions:
+  icon_font: mdi_icons_40
+  text_font: nunito_20
+  text_color: white
+  bg_color: black
+  button_on_color: "ep_orange"
+  button_off_color: "very_dark_gray"
+  icon_on_color: "yellow"
+  icon_off_color: "gray"
+  label_on_color: "white"
+  label_off_color: "gray"
+  button_text_color: "white"
+  
+  glyphsets: "GF_Latin_Core"
+
+  # LCD back light modes - Code in backlight_time.yaml
+  display_daytime_brightness: "100%"
+  display_nighttime_brightness: "50%"
+  display_night_hour: "0"      # Hour for night mode (0-23)
+  display_night_minute: "0"    # Minute for night mode (0-59)
+  display_backlight_timeout_always_enabled: "false"  # Set true to dim/off in all modes, not just Night
+  display_backlight_timeout_initial: "5"  # Initial backlight timeout in minutes (-1 to disable)
+  # defaults for popup pages
+  popup_timeout_seconds: '120'  # timeout in seconds  
+
+esphome:
+  name: "bigdisplay"
+  friendly_name: "Advance-P4-10.1-inchV1.2"
+  comment: "Advance-P4-10.1-inch as Waveshare ESP32-P4 WiFi6 Touch LCD 7B 1024px X 600px Smart Screen"
+  platformio_options:
+    build_flags:
+      - "-D LV_USE_CHART=1"
+
+  on_boot:
+    - priority: 400
+      then:
+        - script.execute: update_loading_page
+
+
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+
+      
+logger:
+  level: debug
+  logs:
+    lvgl: info
+  hardware_uart: UART0
+
+
+
+
+button:
+  - platform: template
+    name: "Display vorherige Seite"
+    icon: "mdi:arrow-left"
+    on_press:
+      - lvgl.page.previous
+
+  - platform: template
+    name: "Display nächste Seite"
+    icon: "mdi:arrow-right"
+    on_press:
+      - lvgl.page.next
+
+#  #####  ### ######         #####                               
+# #     #  #  #     #       #     # #      # ###### #    # ##### 
+# #        #  #     #       #       #      # #      ##   #   #   
+#  #####   #  ######  ##### #       #      # #####  # #  #   #   
+#       #  #  #             #       #      # #      #  # #   #   
+# #     #  #  #             #     # #      # #      #   ##   #   
+#  #####  ### #              #####  ###### # ###### #    #   #   
+#                                                               
+
+rtttl:
+  speaker: my_speaker
+  id: my_rtttl
+  gain: 0.8
+
+
+external_components:
+  - source: github://eigger/espcomponents@latest
+    components: [ sip_client ]
+#    refresh: always
+
+# Basic VoIP/SIP Setup
+sip_client:
+  microphone: pdm_mic
+  speaker: my_speaker
+  server: "192.168.178.1"
+  username: "ESPHome2"
+  password: !secret sippass
+
+  on_registered:
+    - logger.log: "SIP registriert"
+  on_incoming_call:
+    - rtttl.play: 'Loewenzahn:d=4,o=5,b=225:4f5,8g5,8a5,4p,8a5,4p,4a5,8g5,8f5,8p,4c5.,2p,4f5,8g5,8a5,4p,8a5,4p,4a5,8g5,4f5,4c6.,2p,4p,4c6,8d6,8d#6,4p,8d#6,4p,4d#6,8d6,4c6,8a#5,4p,8a#5,4p,8a#5,4f5,8g5,8g#5,8p,4g5.,2p,4d6,8g6'
+
+  #'Loewenzahn:d=4,o=5,b=225:4f5,8g5,8a5,4p,8a5,4p,4a5,8g5,8f5,8p,4c5.,2p,4f5,8g5,8a5,4p,8a5,4p,4a5,8g5,4f5,4c6.,2p,4p,4c6,8d6,8d#6,4p,8d#6,4p,4d#6,8d6,4c6,8a#5,4p,8a#5,4p,8a#5,4f5,8g5,8g#5,8p,4g5.,2p,4d6,8g6'
+  #'AlfredJQ:d=8,o=5,b=125:g,c6,c6,c6,c6,g,g,p,g,a,a,p,a,e,e,p,e,f,d,f,d,a,g,p,g,c,d,e,g,4c6,p,g,c6,c6,c6,c6,g,g,p,g,a,a,p,a,e,e,p,e,f,d,f,d,a,g,p,g,c,d,e,g,4c6,p,c6,c#6,c#6,c#6,c#6,g#,g#,p,g#,a#,a#,a#,a#,f,f,p,f,d#,f,f#,d#,a#,g#,p,g#,c#,d#,f,g#,4c#6,p,g#,c#6,c#6,c#6,c#6,g#,g#'
+
+    - logger.log:
+        format: "Playing ringtone....Incoming call from %s"
+        args: [caller.c_str()]
+    - lvgl.label.update:
+        id: caller_id_label
+        text: !lambda 'return caller;'
+    - lvgl.widget.show: incoming_call_popup
+  on_call_connected:
+    - rtttl.stop
+    - lvgl.widget.hide: incoming_call_popup
+    - mqtt.publish:
+        topic: "fritzbox/phonecall"
+        payload: "0"    
+  on_call_ended:
+    - rtttl.stop
+    - lvgl.widget.hide: incoming_call_popup
+    - mqtt.publish:
+        topic: "fritzbox/phonecall"
+        payload: "0"    
+  on_dtmf:
+    - logger.log:
+        format: "Received DTMF %s"
+        args: [digit.c_str()]
+
+
+mqtt:
+  id: NewBigDisplay
+  broker: !secret mqtt_broker
+  username: !secret mqtt_username
+  password: !secret mqtt_password
+  discovery: true
+  discovery_retain: true
+  discovery_unique_id_generator: mac
+  discovery_object_id_generator: device_name
+  birth_message:
+  will_message:
+  shutdown_message:
+
+
+
+
+
+# Time update script - This is run once per second. Use it to update any time related labels.
+script:
+  # --------------------------------------------------------------------------
+  # This script is called once per minute.
+  # Any packages in this library will !extend time_update to update their own labels.
+  # You can add code here to update your own custom labels.
+  # --------------------------------------------------------------------------
+  - id: time_update
+    then:
+      - lambda: |-
+          // No operation
+
+packages:
+  # Generic configuration for ESP32 screens
+  # Include Wi-Fi support
+  wifi: !include esphome-modular-lvgl-buttons/common/wifi.yaml
+  # Enable OTA updates with a status screen
+  ota_screen: !include esphome-modular-lvgl-buttons/common/ota.yaml
+   # Some basic sensors
+  sensors: !include esphome-modular-lvgl-buttons/common/sensors_base.yaml
+  # Styles + Themes + Some nice basic fonts + 1000s of glyphs + all the colors
+  theme:  !include esphome-modular-lvgl-buttons/common/theme/index.yaml
+  # Use this theme for debugging
+  # theme:  !include esphome-modular-lvgl-buttons/common/theme/index_debug.yaml  # uncomment to enable debug outlines
+  # Include if your touch screen has a backlight. Also sets the time from HA
+  backlight: !include esphome-modular-lvgl-buttons/common/backlight_time.yaml
+  # Popup system — code for popup pages lives here, but the popups themselves are defined in the UI section below
+  popup_system: !include esphome-modular-lvgl-buttons/ui/popup/popup_system.yaml
+  
+  # Hardware description file
+  hardware: !include
+    file: esphome-modular-lvgl-buttons/hardware/crowpanel-adv-10.1inch-esp32p4-hmi_v1.2.yaml
+    vars:
+      rotation: "0"  # set screen rotation 0, 90, 180, 270
+  # Media Player and Voice Assistant
+  #media_voice: !include esphome-modular-lvgl-buttons/hardware/media_player-voice_assistant.yaml
+
+  # Basic boot screen with ESPHome logo and device diagnostic info
+  loading_screen: !include esphome-modular-lvgl-buttons/pages/loading.yaml
+  # info screen - WiFi login, IP address, MAC address etc
+  info_screen: !include esphome-modular-lvgl-buttons/pages/info.yaml
+
+  # This section will add buttons and page to your screen using the ESPHome package system.
+  # Each package has all the code required for the button or page (LVGL, sensors, etc)
+
+  # Add a button the controls a light in HA
+
+# Remote — Home Assistant sensor entity
+  page01_elements: !include pages/page01.yaml
+  page02_elements: !include pages/page02.yaml
+
+
+
+
+
+
+
+
+
+
+switch:
+  # Controls panel power for LCD and touch
+#  - platform: gpio
+#    pin: GPIO29
+#    id: display_power
+#    name: "Display Power"
+#    restore_mode: ALWAYS_ON
+
+  # Amplifier power (active‑low on this board)
+
+  # Microphone routing switch (R/L channel selection on the board)
+
+###sendspin:
+###  id: sendspin_hub
+###  task_stack_in_psram: false
+
+media_source:
+  - platform: audio_http
+    id: http_announcement_source
+    buffer_size: 250000
+  - platform: audio_http
+    id: http_media_source
+    buffer_size: 500000
+###  - platform: sendspin
+###    id: sendspin_media_source
+
+
+media_player:
+###  - platform: sendspin
+###    id: sendspin_group_media_player
+  - platform: speaker_source
+    name: "Media Player"
+    id: my_media_player
+    announcement_pipeline:
+      speaker: announcement_resampling_speaker
+      format: FLAC
+      sample_rate: 48000
+      num_channels: 1
+      sources:
+        - http_announcement_source
+    media_pipeline:
+      speaker: media_resampling_speaker
+      format: FLAC
+      num_channels: 1
+      sample_rate: 48000
+      sources:
+        - http_media_source
+###        - sendspin_media_source
+    volume_increment: 0.05
+    volume_min: 0.5
+    volume_max: 0.75
+
+
+
+
+
+
+
+
+
+# This is the main LVGL section. We start with a simple grid.
+lvgl:
+  buffer_size: 100%
+  pages:
+    - id: main_page
+      layout: 4x9
+      styles: page_style
+      <<: !include esphome-modular-lvgl-buttons/common/swipe_navigation.yaml
+
+    - id: second_page
+      layout: 4x9
+      styles: page_style
+      <<: !include esphome-modular-lvgl-buttons/common/swipe_navigation.yaml      
+
+  top_layer:
+    widgets:
+      - obj:
+          id: incoming_call_popup
+          hidden: true
+          width: 880
+          height: 440
+          align: CENTER
+          radius: 12
+          bg_color: 0x1E1E1E
+          bg_opa: COVER
+          border_width: 2
+          border_color: 0x00AAFF
+          widgets:
+            - label:
+                text: "Eingehender Anruf"
+                text_font: nunito_48   # an deine geladenen Fonts anpassen
+                align: CENTER
+                y: -100
+
+            - label:
+                id: icon_phone
+                text_font: mdi_icons_40
+                align: CENTER
+#                x: 0
+                y: -20
+                text: $mdi_phone
+          
+
+            - label:
+                id: caller_id_label
+                text: "..."
+                text_font: nunito_48
+                align: CENTER
+                y: 50
+ #               x: 20
+            # Falls die Komponente Answer/Hangup-Actions bietet:
+            - button:
+              #  x: -20
+                y: -15
+                width: 120
+                height: 50                
+                align: BOTTOM_MID
+                widgets:
+                  - label:
+                      text: "Ablehnen"
+                on_click:
+                  - lambda: |-
+                      // id(sip).hangup();  // Methode/Signatur prüfen!
+                  - lvgl.widget.hide: incoming_call_popup
+
+
+
+# If you want to use other icons add them to the list here
+font:
+  # http://materialdesignicons.com/cdn/7.4.47/
+  - file: 'https://github.com/Templarian/MaterialDesign-Webfont/raw/v7.4.47/fonts/materialdesignicons-webfont.ttf'
+    id: mdi_icons_40
+    size: 40
+    bpp: 8
+    glyphs: [
+      $mdi_bed,  # mdi-bed - bedroom icon
+      $mdi_brightness_6,  # mdi-brightness-6 - brightness slider icon
+      $mdi_bulkhead_light,  # mdi-bulkhead-light - bulkhead fixture
+      $mdi_ceiling_fan_light,  # mdi-ceiling-fan-light - ceiling fan with light
+      $mdi_ceiling_light,  # mdi-ceiling-light - ceiling fixture
+      $mdi_chevron_down,  # mdi-chevron-down - close/collapse button
+      $mdi_chevron_up,  # mdi-chevron-up - back/expand button
+      $mdi_circle_opacity,  # mdi-circle-opacity - saturation slider icon
+      $mdi_coach_lamp,  # mdi-coach-lamp - outdoor coach light
+      $mdi_cupboard,
+      $mdi_eyedropper,  # mdi-eyedropper - spectrum mode toggle
+      $mdi_fire,
+      $mdi_fire_off,
+      $mdi_floor_lamp,  # mdi-floor-lamp - floor lamp
+      $mdi_flower_pollen_outline,
+      $mdi_grid,  # mdi-grid - grid mode toggle
+      $mdi_home,  # mdi-home - home/back navigation
+      $mdi_information_box,  # mdi-information-box - info screen
+      $mdi_lamp,  # mdi-lamp - table lamp
+      $mdi_led_strip,  # mdi-led-strip - LED strip light
+      $mdi_lightbulb,  # mdi-lightbulb - generic bulb icon
+      $mdi_music,      
+      $mdi_page_next,
+      $mdi_page_previous,
+      $mdi_phone,
+      $mdi_power_socket_eu,
+      $mdi_radio,
+      $mdi_silverware_fork_knife,
+      $mdi_sofa,
+      $mdi_solar_power,
+      $mdi_string_lights,  # mdi-string-lights - decorative string lights
+      $mdi_thermometer,
+      $mdi_thermometer_probe,
+      $mdi_thermometer_water,
+      $mdi_volume_minus,
+      $mdi_volume_off,
+      $mdi_volume_plus,
+      $mdi_track_light,  # mdi-track-light - track lighting
+      $mdi_water_outline,
+      $mdi_water_percent,      
+      $mdi_white_balance_sunny  # mdi-white-balance-sunny - color temp/sun icon
+    ]
+
+image:
+  - platform: file
+    file: "images/swr1.png"
+    id: bg_swr1
+    type: RGB565
+    resize: 120x120
+  - platform: file
+    file: "images/swr3.png"
+    id: bg_swr3
+    type: RGB565
+    resize: 120x120    
+  - platform: file
+    file: "images/swr4.png"
+    id: bg_swr4
+    type: RGB565
+    resize: 120x120
+
+
+  - platform: file
+    file: "images/seefunk.png"
+    id: bg_seefunk
+    type: RGB565
+    resize: 120x120
+  - platform: file
+    file: "images/oldieantenne.png"
+    id: bg_oldieantenne
+    type: RGB565
+    resize: 120x120
+  - platform: file
+    file: "images/badenfm.png"
+    id: bg_badenfm
+    type: RGB565
+    resize: 120x120            
+
+  - platform: file
+    file: "images/avr_l.png"
+    id: bg_avr_l
+    type: RGB565
+    resize: 120x120     
+  - platform: file
+    file: "images/avr_m.png"
+    id: bg_avr_m
+    type: RGB565
+    resize: 120x120     
+  - platform: file
+    file: "images/avr_r.png"
+    id: bg_avr_r
+    type: RGB565
+    resize: 120x120     

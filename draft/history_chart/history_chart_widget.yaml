@@ -39,13 +39,16 @@ substitutions:
   row_span: "1"
   column_span: "1"
   chart_height: "200"
-  button_y: "210"
+  button_y: "-50"
   range_a_label: "1 Std"
   range_a_minutes: "60"
   range_b_label: "6 Std"
   range_b_minutes: "360"
   range_c_label: "24 Std"
   range_c_minutes: "1440"
+  chartname: "Chartname"
+  text_font: "nunito_36"
+  chart_top_offset: "50"
 
 lvgl:
   pages:
@@ -66,14 +69,20 @@ lvgl:
               - obj:
                   id: ${uid}_placeholder
                   x: 0
-                  y: 0
+                  y: ${chart_top_offset | default(50)}
                   width: 100%
                   height: ${chart_height}
                   bg_color: 0
                   border_width: 0
                   pad_all: 0
+
+              - label:
+                  align: TOP_MID 
+                  text: ${chartname | default("Chart")}
+                  text_font: ${label_font | default(text_font)}
               - button:
-                  x: 0
+#                  x: 0
+                  align: BOTTOM_LEFT
                   y: ${button_y}
                   width: 30%
                   height: 40
@@ -86,7 +95,8 @@ lvgl:
                         align: CENTER
                         text: ${range_a_label}
               - button:
-                  x: 35%
+ #                 x: 35%
+                  align: BOTTOM_MID
                   y: ${button_y}
                   width: 30%
                   height: 40
@@ -99,8 +109,9 @@ lvgl:
                         align: CENTER
                         text: ${range_b_label}
               - button:
-                  x: 70%
+#                  x: 70%
                   y: ${button_y}
+                  align: BOTTOM_RIGHT
                   width: 30%
                   height: 40
                   on_press:

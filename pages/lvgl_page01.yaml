@@ -1,0 +1,7 @@
+#lvgl:
+#  buffer_size: 100%
+  pages:
+    - id: main_page
+      layout: 4x9
+      styles: page_style
+      <<: !include ../esphome-modular-lvgl-buttons/common/swipe_navigation.yaml

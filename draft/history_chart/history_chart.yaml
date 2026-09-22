@@ -82,7 +82,7 @@ substitutions:
   buffer_points: "1440"
   point_count: "60"
   history_max_response_bytes: "40960"
-  history_lookback_hours: "6"
+  history_lookback_hours: "24"
   unit_1: "°C"       # bei % bitte %% schreiben
   y_tick_count: "5"   # Anzahl beschrifteter Linien inkl. Min/Max
 
@@ -201,9 +201,14 @@ script:
                           ESP_LOGW("history_chart", "HA-History (${uid}, Sensor 1): leere Antwort");
                           return;
                         }
+
+                        
+
+
+
+
                         JsonArray states = outer[0].as<JsonArray>();
-                        auto &buf = id(${uid}_buf1);
-                        buf.clear();
+                        std::vector<float> raw;
                         for (JsonObject st : states) {
                           const char *state_str = st["state"] | "";
                           if (state_str[0] == '\0'
@@ -211,9 +216,34 @@ script:
                               || strcmp(state_str, "unavailable") == 0) {
                             continue;
                           }
-                          buf.push_back((float) atof(state_str) * ${scale_1});
-                          if (buf.size() > ${buffer_points}) buf.erase(buf.begin());
+                          raw.push_back((float) atof(state_str) * ${scale_1});
                         }
+                        auto &buf = id(${uid}_buf1);
+                        buf.clear();
+                        int raw_have = (int) raw.size();
+                        int target = ${buffer_points};
+                        if (raw_have > 0) {
+                          for (int i = 0; i < target; i++) {
+                            int start_idx = (i * raw_have) / target;
+                            int end_idx = ((i + 1) * raw_have) / target;
+                            if (end_idx <= start_idx) end_idx = start_idx + 1;
+                            if (end_idx > raw_have) end_idx = raw_have;
+                            float sum = 0;
+                            int n = 0;
+                            for (int j = start_idx; j < end_idx; j++) {
+                              sum += raw[j];
+                              n++;
+                            }
+                            if (n > 0) buf.push_back(sum / n);
+                          }
+                        }
+
+
+
+
+
+
+
                         ESP_LOGI("history_chart", "${uid}: %d Verlaufswerte (Sensor 1) von Home Assistant geladen", (int) buf.size());
                     - script.execute: ${uid}_redraw_1
                 on_error:
@@ -236,27 +266,45 @@ esphome:
             lv_obj_set_style_pad_all(placeholder, 0, 0);
             lv_obj_set_style_pad_column(placeholder, 4, 0);
 
-            // --- Achsen-Spalte: gestapelte Labels statt Scale-Widget ---
+            // --- Achsen-Spalte ---
             lv_obj_t *axis = lv_obj_create(placeholder);
             lv_obj_remove_style_all(axis);
-            lv_obj_set_size(axis, 42, lv_pct(100));
+            lv_obj_set_width(axis, 42);
+            lv_obj_set_height(axis, lv_pct(100));
+            lv_obj_set_style_bg_opa(axis, LV_OPA_TRANSP, 0);
             lv_obj_set_flex_flow(axis, LV_FLEX_FLOW_COLUMN);
             lv_obj_set_flex_align(axis, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_END, LV_FLEX_ALIGN_CENTER);
+
             lv_obj_set_style_pad_all(axis, 0, 0);
+            lv_obj_clear_flag(axis, LV_OBJ_FLAG_SCROLLABLE);
 
             const int n_labels = ${y_tick_count};
             for (int i = n_labels - 1; i >= 0; i--) {
               int val = ${y_min} + i * (${y_max} - ${y_min}) / (n_labels - 1);
               lv_obj_t *lbl = lv_label_create(axis);
               lv_label_set_text_fmt(lbl, "%d${unit_1}", val);
+              lv_obj_set_style_text_color(lbl, lv_color_hex(0xCCCCCC), 0);
+              lv_obj_set_style_text_font(lbl, id(nunito_18), 0);
             }
 
             // --- Chart ---
             lv_obj_t *chart = lv_chart_create(placeholder);
             lv_obj_set_flex_grow(chart, 1);
+
+            lv_obj_set_style_line_color(chart, lv_color_hex(0x666666), LV_PART_MAIN);
+            lv_obj_set_style_line_width(chart, 1, LV_PART_MAIN);
+
+
             lv_obj_set_height(chart, lv_pct(100));
             lv_chart_set_type(chart, LV_CHART_TYPE_LINE);
-            lv_chart_set_div_line_count(chart, n_labels - 1, 0);
+            //lv_chart_set_div_line_count(chart, n_labels - 1, 0);
+            // Horizontale Hilfslinien entsprechend der Y-Skala
+            lv_chart_set_div_line_count(
+              chart,
+              n_labels,
+              0
+            );
+
             lv_chart_set_point_count(chart, ${point_count});
             lv_chart_set_update_mode(chart, LV_CHART_UPDATE_MODE_SHIFT);
             lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_X, 0, ${point_count});
