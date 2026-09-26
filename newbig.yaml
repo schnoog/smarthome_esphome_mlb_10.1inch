@@ -193,17 +193,534 @@ packages:
 
   # Add a button the controls a light in HA
 
+
 # Remote — Home Assistant sensor entity
-  page01_elements: !include pages/page01.yaml
-  page02_elements: !include pages/page02.yaml
+### MAIN PAGE
+
+#  ____                  _ 
+# |  _ \ __ _  __ _  ___/ |
+# | |_) / _` |/ _` |/ _ \ |
+# |  __/ (_| | (_| |  __/ |
+# |_|   \__,_|\__, |\___|_|
+#             |___/        
+# 4x8
+
+
+
+  flip_combi_main: !include
+    file: draft/ui/clock/flipclock.yaml
+    vars:
+      uid: flip_combi_main
+      row: 0
+      column: 6
+      row_span: 1
+      column_span: 2
+      height: 100%
+      font_size: 54
+      show_date: false
+      page_id: "main_page"  
 
 
 
 
 
+  page_button_main_media: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_media     
+      uid: page_button_main_media
+      row: 3
+      column: 0
+      column_span: 2      
+      text: "Media"
+      icon: $mdi_page_next
+      page_id: "main_page"
+      click_page: "media_page"
+     
+
+  page_button_main_heating: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_heating     
+      uid: page_button_main_heating
+      row: 3
+      column: 2
+      column_span: 2      
+      text: "Heizung"
+      icon: $mdi_page_next
+      page_id: "main_page"
+      click_page: "heating_page"
+
+
+  page_button_main_solar: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_solar     
+      uid: page_button_main_solar
+      row: 3
+      column: 4
+      column_span: 2      
+      text: "Solar"
+      icon: $mdi_page_next
+      page_id: "main_page"
+      click_page: "solar_page"
+
+
+  page_button_main_cal: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_cal     
+      uid: page_button_main_cal
+      row: 3
+      column: 6
+      column_span: 2      
+      text: "Kalender"
+      icon: $mdi_page_next
+      page_id: "main_page"
+      click_page: "cal_page"
+
+
+#  ____                  ____                          _ _       
+# |  _ \ __ _  __ _  ___|___ \      _ __ ___   ___  __| (_) __ _ 
+# | |_) / _` |/ _` |/ _ \ __) |    | '_ ` _ \ / _ \/ _` | |/ _` |
+# |  __/ (_| | (_| |  __// __/     | | | | | |  __/ (_| | | (_| |
+# |_|   \__,_|\__, |\___|_____|    |_| |_| |_|\___|\__,_|_|\__,_|
+#             |___/                                              
+     
+
+  flip_combi_media: !include
+    file: draft/ui/clock/flipclock.yaml
+    vars:
+      uid: flip_combi_media
+      row: 0
+      column: 6
+      row_span: 1
+      column_span: 2
+      height: 100%
+      font_size: 54
+      show_date: false
+      page_id: "media_page"  
+
+
+#Spalte 0 (1)
+  media_vero_play_yoga_akt_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_vero_play_yoga_akt_btn
+      entity_id: "script.vero_play_yoga_neu"
+      row: 0
+      column: 0
+      column_span: 1      
+      text: "Yoga aktuell"
+      page_id: "media_page"
+      background: bg_avr_yoga_akt
+
+  media_vero_play_seefunk_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_vero_play_seefunk_btn
+      entity_id: "script.vero_play_radioseefunk"
+      row: 1
+      column: 0
+      column_span: 1      
+      text: "Seefunk"
+      page_id: "media_page"
+      background: bg_mp_radio_seefunk
+
+  media_vero_play_badenfm_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_vero_play_badenfm_btn
+      entity_id: "script.vero_play_badenfm"
+      row: 2
+      column: 0
+      column_span: 1      
+      text: "Baden FM"
+      page_id: "media_page"
+      background: bg_mp_radio_badenfm
+
+#Spalte 1 (2)
+  media_vero_play_yoga_alt_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_vero_play_yoga_alt_btn
+      entity_id: "script.vero_play_yoga_alt"
+      row: 0
+      column: 1
+      column_span: 1      
+      text: "Yoga letztes"
+      page_id: "media_page"
+      background: bg_avr_yoga_last
+
+  media_vero_play_swr1_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_vero_play_swr1_btn
+      entity_id: "script.vero_play_swr1"
+      row: 1
+      column: 1
+      column_span: 1      
+      text: "SWR1"
+      page_id: "media_page"
+      background: bg_mp_radio_swr1
+
+  media_vero_play_swr4_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_vero_play_swr4_btn
+      entity_id: "script.vero_play_swr4"
+      row: 2
+      column: 1
+      column_span: 1      
+      text: "SWR4"
+      page_id: "media_page"
+      background: bg_mp_radio_swr4
 
 
 
+#Spalte 2 (3)
+
+  media_vero_play_swr3_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_vero_play_swr3_btn
+      entity_id: "script.vero_play_swr3"
+      row: 1
+      column: 2
+      column_span: 1      
+      text: "SWR3"
+      page_id: "media_page"
+      background: bg_mp_radio_swr3
+
+  media_vero_play_oldieantenne_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_vero_play_oldieantenne_btn
+      entity_id: "script.vero_play_oldieantenne"
+      row: 2
+      column: 2
+      column_span: 1      
+      text: "Oldie Antenne"
+      page_id: "media_page"
+      background: bg_mp_radio_oldieantenne
+    
+
+
+#Spalte 4 (5)
+  media_avr_tv_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_avr_tv_btn
+      entity_id: "script.avr_media_tv"
+      row: 0
+      column: 4
+      column_span: 1      
+      text: "TV"
+      page_id: "media_page"
+      background: bg_avr_tv
+
+  media_avr_mp_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_avr_mp_btn
+      entity_id: "script.avr_media_mp"
+      row: 1
+      column: 4
+      column_span: 1      
+      text: "DVD/MP"
+      page_id: "media_page"
+      background: bg_avr_media
+
+  media_avr_aux_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_avr_aux_btn
+      entity_id: "script.avr_media_aux"
+      row: 2
+      column: 4
+      column_span: 1      
+      text: "AUX"
+      page_id: "media_page"
+      background: bg_avr_aux
+
+#Spalte 5 (6)
+
+  media_tv_pwr_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_tv_pwr_btn
+      entity_id: "script.tv_power"
+      row: 0
+      column: 5
+      column_span: 1      
+      text: "TV Power"
+      page_id: "media_page"
+      background: bg_tv_power
+
+  media_avr_power_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_avr_power_btn
+      entity_id: "script.avr_power"
+      row: 1
+      column: 5
+      column_span: 1      
+      text: "Power"
+      page_id: "media_page"
+      background: bg_avr_power
+
+  media_avr_mute_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_avr_mute_btn
+      entity_id: "script.avr_vol_mute"
+      row: 2
+      column: 5
+      column_span: 1      
+      text: "Aux"
+      page_id: "media_page"
+      background: bg_avr_v_mute
+
+
+
+
+  media_avr_vol_down_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_avr_vol_down_btn
+      entity_id: "script.avr_vol_down"
+      row: 2
+      column: 6
+      column_span: 2      
+      text: "Vol -"
+      icon: $mdi_music
+      page_id: "media_page"
+      background: bg_avr_v_minus
+
+  media_avr_vol_up_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_avr_vol_up_btn
+      entity_id: "script.avr_vol_up"
+      row: 1
+      column: 6
+      column_span: 2      
+      text: "Vol +"
+      icon: $mdi_music
+      page_id: "media_page"
+      background: bg_avr_v_plus
+
+
+
+  page_button_media_main: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_home     
+      uid: page_button_media_main
+      row: 3
+      column: 0
+      column_span: 2      
+      text: ""
+      icon: $mdi_home
+      page_id: "media_page"
+      click_page: "main_page"
+
+  page_button_media_heating: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_heating     
+      uid: page_button_media_heating
+      row: 3
+      column: 2
+      column_span: 2      
+      text: "Heizung"
+      icon: $mdi_page_next
+      page_id: "media_page"
+      click_page: "heating_page"
+
+
+  page_button_media_solar: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_solar     
+      uid: page_button_media_solar
+      row: 3
+      column: 4
+      column_span: 2      
+      text: "Solar"
+      icon: $mdi_page_next
+      page_id: "media_page"
+      click_page: "solar_page"
+
+
+  page_button_media_cal: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_cal     
+      uid: page_button_media_cal
+      row: 3
+      column: 6
+      column_span: 2      
+      text: "Kalender"
+      icon: $mdi_page_next
+      page_id: "media_page"
+      click_page: "cal_page"
+
+#  ____                  _____      _                _   _             
+# |  _ \ __ _  __ _  ___|___ /     | |__   ___  __ _| |_(_)_ __   __ _ 
+# | |_) / _` |/ _` |/ _ \ |_ \     | '_ \ / _ \/ _` | __| | '_ \ / _` |
+# |  __/ (_| | (_| |  __/___) |    | | | |  __/ (_| | |_| | | | | (_| |
+# |_|   \__,_|\__, |\___|____/     |_| |_|\___|\__,_|\__|_|_| |_|\__, |
+#             |___/                                              |___/ 
+
+  flip_combi_heating: !include
+    file: draft/ui/clock/flipclock.yaml
+    vars:
+      uid: flip_combi_heating
+      row: 0
+      column: 6
+      row_span: 1
+      column_span: 2
+      height: 100%
+      font_size: 54
+      show_date: false
+      page_id: "heating_page"  
+
+
+  page_button_heating_main: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_home  
+      uid: page_button_heating_main
+      row: 3
+      column: 0
+      column_span: 2      
+      text: ""
+      icon: $mdi_home
+      page_id: "heating_page"
+      click_page: "main_page"
+
+  page_button_heating_media: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_media     
+      uid: page_button_heating_media
+      row: 3
+      column: 2
+      column_span: 2      
+      text: "Media"
+      icon: $mdi_page_next
+      page_id: "heating_page"
+      click_page: "media_page"
+     
+
+  page_button_heating_solar: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_solar     
+      uid: page_button_heating_solar
+      row: 3
+      column: 4
+      column_span: 2      
+      text: "Solar"
+      icon: $mdi_page_next
+      page_id: "heating_page"
+      click_page: "solar_page"
+
+
+  page_button_heating_cal: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_cal     
+      uid: page_button_heating_cal
+      row: 3
+      column: 6
+      column_span: 2      
+      text: "Kalender"
+      icon: $mdi_page_next
+      page_id: "heating_page"
+      click_page: "cal_page"
+#  ____                  _  _                  _            
+# |  _ \ __ _  __ _  ___| || |       ___  ___ | | __ _ _ __ 
+# | |_) / _` |/ _` |/ _ \ || |_     / __|/ _ \| |/ _` | '__|
+# |  __/ (_| | (_| |  __/__   _|    \__ \ (_) | | (_| | |   
+# |_|   \__,_|\__, |\___|  |_|      |___/\___/|_|\__,_|_|   
+#             |___/                                         
+
+
+  flip_combi_solar: !include
+    file: draft/ui/clock/flipclock.yaml
+    vars:
+      uid: flip_combi_solar
+      row: 0
+      column: 6
+      row_span: 1
+      column_span: 2
+      height: 100%
+      font_size: 54
+      show_date: false
+      page_id: "solar_page"  
+
+
+  page_button_solar_main: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_home  
+      uid: page_button_solar_main
+      row: 3
+      column: 0
+      column_span: 2      
+      text: ""
+      icon: $mdi_home
+      page_id: "solar_page"
+      click_page: "main_page"
+
+
+#  ____                  ____                 _ 
+# |  _ \ __ _  __ _  ___| ___|       ___ __ _| |
+# | |_) / _` |/ _` |/ _ \___ \      / __/ _` | |
+# |  __/ (_| | (_| |  __/___) |    | (_| (_| | |
+# |_|   \__,_|\__, |\___|____/      \___\__,_|_|
+#             |___/                             
+
+
+  flip_combi_cal: !include
+    file: draft/ui/clock/flipclock.yaml
+    vars:
+      uid: flip_combi_cal
+      row: 0
+      column: 6
+      row_span: 1
+      column_span: 2
+      height: 100%
+      font_size: 54
+      show_date: false
+      page_id: "cal_page"  
+
+
+  page_button_cal_main: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_home  
+      uid: page_button_cal_main
+      row: 3
+      column: 0
+      column_span: 2      
+      text: ""
+      icon: $mdi_home
+      page_id: "cal_page"
+      click_page: "main_page"
+
+#  page_button_main: !include
+#    file: esphome-modular-lvgl-buttons/ui/page/page_button.yaml
+#    vars:
+#      uid: page_button_main
+#      row: 3
+#      column: 8
+#      text: "Hauptseite"
+#      icon: $mdi_page_previous
+#      page_id: "second_page"
+#      click_page: "main_page"
 
 
 switch:
@@ -271,14 +788,32 @@ lvgl:
   buffer_size: 100%
   pages:
     - id: main_page
-      layout: 4x9
+      layout: 4x8
       styles: page_style
       <<: !include esphome-modular-lvgl-buttons/common/swipe_navigation.yaml
 
-    - id: second_page
-      layout: 4x9
+    - id: media_page
+      layout: 4x8
       styles: page_style
       <<: !include esphome-modular-lvgl-buttons/common/swipe_navigation.yaml      
+
+
+    - id: heating_page
+      layout: 4x8
+      styles: page_style
+      <<: !include esphome-modular-lvgl-buttons/common/swipe_navigation.yaml      
+
+    - id: solar_page
+      layout: 4x8
+      styles: page_style
+      <<: !include esphome-modular-lvgl-buttons/common/swipe_navigation.yaml      
+
+
+    - id: cal_page
+      layout: 4x8
+      styles: page_style
+      <<: !include esphome-modular-lvgl-buttons/common/swipe_navigation.yaml      
+
 
   top_layer:
     widgets:
@@ -294,6 +829,8 @@ lvgl:
           border_width: 2
           border_color: 0x00AAFF
           widgets:
+#mdi_phone
+
             - label:
                 text: "Eingehender Anruf"
                 text_font: nunito_48   # an deine geladenen Fonts anpassen
@@ -433,3 +970,135 @@ image:
     id: bg_avr_r
     type: RGB565
     resize: 120x120     
+
+  - platform: file
+    file: "images/tile_heizung.png"
+    id: bg_heating
+    type: RGB565
+    resize: 256x150     
+  - platform: file
+    file: "images/tile_media.png"
+    id: bg_media
+    type: RGB565
+    resize: 256x150     
+  - platform: file
+    file: "images/tile_home.png"
+    id: bg_home
+    type: RGB565
+    resize: 256x150     
+  - platform: file
+    file: "images/tile_solar.png"
+    id: bg_solar
+    type: RGB565
+    resize: 256x150     
+  - platform: file
+    file: "images/tile_kalender.png"
+    id: bg_cal
+    type: RGB565
+    resize: 256x150     
+
+  - platform: file
+    file: "images/tile_avr_lauter.png"
+    id: bg_avr_v_plus
+    type: RGB565
+    resize: 256x150     
+  - platform: file
+    file: "images/tile_avr_leiser.png"
+    id: bg_avr_v_minus
+    type: RGB565
+    resize: 256x150     
+
+
+  - platform: file
+    file: "images/tile_avr_aux.png"
+    id: bg_avr_aux
+    type: RGB565
+    resize: 128x150     
+
+  - platform: file
+    file: "images/tile_avr_tv.png"
+    id: bg_avr_tv
+    type: RGB565
+    resize: 128x150     
+
+
+  - platform: file
+    file: "images/tile_avr_media.png"
+    id: bg_avr_media
+    type: RGB565
+    resize: 128x150     
+
+  - platform: file
+    file: "images/tile_yoga_aktuell.png"
+    id: bg_avr_yoga_akt
+    type: RGB565
+    resize: 128x150     
+
+
+  - platform: file
+    file: "images/tile_yoga_letztes.png"
+    id: bg_avr_yoga_last
+    type: RGB565
+    resize: 128x150     
+
+  - platform: file
+    file: "images/tile_avr_mute.png"
+    id: bg_avr_v_mute
+    type: RGB565
+    resize: 128x150     
+
+  - platform: file
+    file: "images/tile_avr_power.png"
+    id: bg_avr_power
+    type: RGB565
+    resize: 128x150     
+
+  - platform: file
+    file: "images/tile_tv_power.png"
+    id: bg_tv_power
+    type: RGB565
+    resize: 128x150 
+
+
+
+
+
+
+
+
+  - platform: file
+    file: "images/radio_badenfm_128_150.png"
+    id: bg_mp_radio_badenfm
+    type: RGB565
+    resize: 128x150  
+  - platform: file
+    file: "images/radio_seefunk_128_150.png"
+    id: bg_mp_radio_seefunk
+    type: RGB565
+    resize: 128x150   
+  - platform: file
+    file: "images/radio_swr3_128_150.png"
+    id: bg_mp_radio_swr3
+    type: RGB565
+    resize: 128x150   
+  - platform: file
+    file: "images/radio_swr1_128_150.png"
+    id: bg_mp_radio_swr1
+    type: RGB565
+    resize: 128x150   
+  - platform: file
+    file: "images/radio_swr4_128_150.png"
+    id: bg_mp_radio_swr4
+    type: RGB565
+    resize: 128x150   
+  - platform: file
+    file: "images/radio_oldieantenne_128_150.png"
+    id: bg_mp_radio_oldieantenne
+    type: RGB565
+    resize: 128x150  
+
+
+
+
+
+

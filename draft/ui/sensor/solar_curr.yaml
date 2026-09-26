@@ -1,0 +1,198 @@
+# Energy tile
+#
+# Shows current solar production and current power consumption.
+#
+# vars:
+#   uid:            unique identifier
+#   power_entity:   HA sensor for current consumption [W]
+#   solar_entity:   HA sensor for current solar production [W]
+#   row:             grid row
+#   column:          grid column
+#   row_span:        (default: 1)
+#   column_span:     (default: 2)
+#   page_id:         parent page (default: main_page)
+#
+# Optional:
+#   solar_icon:     solar icon
+#   power_icon:     power icon
+#   solar_text:     label for solar
+#   power_text:     label for consumption
+
+sensor:
+
+  # ---------------------------------------------------------------------------
+  # Current power consumption
+  # ---------------------------------------------------------------------------
+  - platform: homeassistant
+    id: ${uid}_power
+    entity_id: ${power_entity}
+    internal: true
+    on_value:
+      then:
+        # Update power value
+
+
+        - lvgl.label.update:
+            id: ${uid}_power_value
+            text: !lambda |-
+              if (isnan(x)) {
+                return std::string("--");
+              }
+
+              char buf[32];
+
+              // Negative = feed-in
+              float value = abs(x);
+
+              if (value >= 1000.0) {
+                snprintf(buf, sizeof(buf), "%.1f kW", value / 1000.0);
+              } else {
+                snprintf(buf, sizeof(buf), "%.0f W", value);
+              }
+
+              return std::string(buf);
+
+        # Update power title
+
+
+
+        - lvgl.label.update:
+            id: ${uid}_power_title
+            text: !lambda |-
+              if (isnan(x)) {
+                return std::string("${power_text | default('Netzbezug')}");
+              }
+
+              if (x < 0) {
+                return std::string("Einspeisung");
+              }
+
+              return std::string("${power_text | default('Netzbezug')}");
+            text_color: !lambda |-
+              if (isnan(x)) {
+                return lv_color_hex(0xFFFFFF);
+              }
+
+              if (x < 0) {
+                return lv_color_hex(0x00CC66);
+              }
+
+              return lv_color_hex(0xFF4444);
+
+        - lvgl.label.update:
+            id: ${uid}_power_icon
+            text_color: !lambda |-
+              if (x < 0) {
+                return lv_color_hex(0x00CC66);
+              }
+              return lv_color_hex(0xFF4444);
+
+        - lvgl.label.update:
+            id: ${uid}_power_value
+            text_color: !lambda |-
+              if (x < 0) {
+                return lv_color_hex(0x00CC66);
+              }
+              return lv_color_hex(0xFF4444);
+
+  # ---------------------------------------------------------------------------
+  # Current solar production
+  # ---------------------------------------------------------------------------
+  - platform: homeassistant
+    id: ${uid}_solar
+    entity_id: ${solar_entity}
+    internal: true
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: ${uid}_solar_value
+            text: !lambda |-
+              if (isnan(x)) {
+                return std::string("--");
+              }
+
+              char buf[32];
+
+              if (x >= 1000.0) {
+                snprintf(buf, sizeof(buf), "%.1f kW", x / 1000.0);
+              } else {
+                snprintf(buf, sizeof(buf), "%.0f W", x);
+              }
+
+              return std::string(buf);
+
+
+lvgl:
+  pages:
+  - id: !extend ${page_id | default("main_page")}
+    widgets:
+
+    - container:
+        id: ${uid}_tile
+
+        grid_cell_row_pos: ${row}
+        grid_cell_column_pos: ${column}
+
+        grid_cell_row_span: ${row_span | default(1)}
+        grid_cell_column_span: ${column_span | default(2)}
+
+        grid_cell_x_align: stretch
+        grid_cell_y_align: stretch
+
+#        pad_all: 10
+
+        widgets:
+        - button:
+            bg_opa: ${bg_opa | default("COVER")}
+            id: button_${uid}
+            clickable: false
+            widgets:            
+        # =====================================================================
+        # Solar
+        # =====================================================================
+
+            - label:
+                id: ${uid}_solar_icon
+                text_font: $icon_font
+                text: ${solar_icon | default("\U000F0A72")}
+                align: top_left
+
+            - label:
+                id: ${uid}_solar_title
+                text: ${solar_text | default("SOLAR")}
+                align: top_mid
+                y: 2
+
+            - label:
+                id: ${uid}_solar_value
+                text: "--"
+                text_color: $label_off_color
+                text_font: ${label_font | default(text_font)}
+                align: center
+                y: -10
+
+            # =====================================================================
+            # Power consumption / feed-in
+            # =====================================================================
+
+            - label:
+                id: ${uid}_power_icon
+                text_font: $icon_font
+                text: ${power_icon | default("\U000F07E7")}
+                align: bottom_left
+
+            - label:
+                id: ${uid}_power_title
+                text: ${power_text | default("Netzbezug")}
+                align: bottom_mid
+                y: -2
+                x: 15
+
+            - label:
+                id: ${uid}_power_value
+                text: "--"
+                align: center
+                text_color: $label_off_color
+                text_font: ${label_font | default(text_font)}
+                y: 15
+

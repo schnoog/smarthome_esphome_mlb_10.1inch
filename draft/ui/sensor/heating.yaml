@@ -1,0 +1,268 @@
+---
+# Heating tile
+#
+# Shows:
+#   - Water storage temperature
+#   - Boiler temperature
+#   - Water pressure
+#   - Burner status
+#
+# vars:
+#   uid:                    unique identifier
+#   water_storage_entity:   HA sensor for water storage temperature [°C]
+#   boiler_entity:          HA sensor for boiler temperature [°C]
+#   pressure_entity:        HA sensor for water pressure [bar]
+#   burner_entity:          HA binary_sensor for burner
+#
+#   row:                    grid row
+#   column:                 grid column
+#   row_span:               (default: 1)
+#   column_span:            (default: 2)
+#   page_id:                (default: main_page)
+
+sensor:
+
+  # ===========================================================================
+  # Water storage temperature
+  # ===========================================================================
+
+  - platform: homeassistant
+    id: ${uid}_water_storage
+    entity_id: ${water_storage_entity}
+    internal: true
+
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: ${uid}_water_storage_value
+            text: !lambda |-
+              if (isnan(x)) {
+                return std::string("-- °C");
+              }
+
+              char buf[32];
+              snprintf(buf, sizeof(buf), "%.1f °C", x);
+              return std::string(buf);
+
+
+  # ===========================================================================
+  # Boiler temperature
+  # ===========================================================================
+
+  - platform: homeassistant
+    id: ${uid}_boiler
+    entity_id: ${boiler_entity}
+    internal: true
+
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: ${uid}_boiler_value
+            text: !lambda |-
+              if (isnan(x)) {
+                return std::string("-- °C");
+              }
+
+              char buf[32];
+              snprintf(buf, sizeof(buf), "%.1f °C", x);
+              return std::string(buf);
+
+
+  # ===========================================================================
+  # Water pressure
+  # ===========================================================================
+
+  - platform: homeassistant
+    id: ${uid}_pressure
+    entity_id: ${pressure_entity}
+    internal: true
+
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: ${uid}_pressure_value
+            text: !lambda |-
+              if (isnan(x)) {
+                return std::string("-- bar");
+              }
+
+              char buf[32];
+              snprintf(buf, sizeof(buf), "%.1f bar", x);
+              return std::string(buf);
+
+
+
+
+  # ===========================================================================
+  # Burner
+  # ===========================================================================
+
+  - platform: homeassistant
+    id: ${uid}_burner
+    entity_id: ${burner_entity}
+    internal: true
+
+    on_value:
+      then:
+        - if:
+            condition:
+              lambda: 'return x > 0;'
+            then:
+              - lvgl.label.update:
+                  id: ${uid}_burner_icon
+                  text: "\U000F0238"
+
+              - lvgl.label.update:
+                  id: ${uid}_burner_value
+                  text: "AN"
+            else:
+              - lvgl.label.update:
+                  id: ${uid}_burner_icon
+                  text: "\U000F1722"
+
+              - lvgl.label.update:
+                  id: ${uid}_burner_value
+                  text: "AUS"
+
+
+lvgl:
+  pages:
+  - id: !extend ${page_id | default("main_page")}
+    widgets:
+
+    - container:
+        id: ${uid}_tile
+
+        grid_cell_row_pos: ${row}
+        grid_cell_column_pos: ${column}
+
+        grid_cell_row_span: ${row_span | default(1)}
+        grid_cell_column_span: ${column_span | default(2)}
+
+        grid_cell_x_align: stretch
+        grid_cell_y_align: stretch
+
+#        pad_all: 10
+
+        widgets:
+        - button:
+            bg_opa: ${bg_opa | default("COVER")}
+            id: button_${uid}
+            clickable: false
+            widgets:
+
+        # =====================================================================
+        # Water storage
+        # =====================================================================
+
+            - label:
+                id: ${uid}_water_storage_icon
+                text_font: $icon_font
+                text: "\U000F0E0A"
+                align: top_left
+                x: 0
+                y: -8
+
+            - label:
+                id: ${uid}_water_storage_title
+                text: "Vorrat"
+                align: top_left
+                x: 40
+                y: -3
+
+
+            - label:
+                id: ${uid}_water_storage_value
+                text: "-- °C"
+                align: top_right
+                x: -5
+                y: -3
+                
+
+
+            # =====================================================================
+            # Boiler
+            # =====================================================================
+
+            - label:
+                id: ${uid}_boiler_icon
+                text_font: $icon_font
+                text: "\U000F0E0A"
+                align: top_left
+                x: 0
+                y: 24
+
+            - label:
+                id: ${uid}_boiler_title
+                text: "Boiler"
+                align: top_left
+                x: 40
+                y: 29
+
+            - label:
+                id: ${uid}_boiler_value
+                text: "-- °C"
+                align: top_right
+                x: -5
+                y: 29
+                
+
+
+            # =====================================================================
+            # Burner
+            # =====================================================================
+
+            - label:
+                id: ${uid}_burner_icon
+                text_font: $icon_font
+                text: "\U000F0238"
+                align: bottom_left
+                x: 0
+                y: -26
+
+            - label:
+                id: ${uid}_burner_title
+                text: "Brenner"
+                align: bottom_left
+                x: 40
+                y: -34
+
+            - label:
+                id: ${uid}_burner_value
+                text: "--"
+                align: bottom_right
+                x: -5
+                y: -34
+                
+
+
+
+
+            # =====================================================================
+            # Pressure
+            # =====================================================================
+
+            - label:
+                id: ${uid}_pressure_icon
+                text_font: $icon_font
+                text: "\U000F058E"
+                align: bottom_left
+                x: 0
+                y: +3
+
+
+            - label:
+                id: ${uid}_pressure_title
+                text: "Druck"
+                align: bottom_left
+                x: 40
+                y: -1
+
+
+            - label:
+                id: ${uid}_pressure_value
+                text: "-- bar"
+                align: bottom_right
+                x: -5
+                y: -1
+                

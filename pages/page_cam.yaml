@@ -1,0 +1,36 @@
+substitutions:
+  page_identifier: "cam_page"
+
+
+packages:
+### MAIN PAGE
+
+#    .aMMMb  .aMMMb  dMMMMMMMMb dMMMMMP dMMMMb  .aMMMb 
+#   dMP"VMP dMP"dMP dMP"dMP"dMPdMP     dMP.dMP dMP"dMP 
+#  dMP     dMMMMMP dMP dMP dMPdMMMP   dMMMMK" dMMMMMP  
+# dMP.aMP dMP dMP dMP dMP dMPdMP     dMP"AMF dMP dMP   
+# VMMMP" dMP dMP dMP dMP dMPdMMMMMP dMP dMP dMP dMP    
+#                                                      
+
+  camera:
+    !include
+      file: ../draft/camera_remote.yaml
+
+      vars:
+        uid: esp32s3xcam
+
+        row: 0
+        column: 0
+        row_span: 4
+        column_span: 9
+
+        text: "Kamera"
+
+        image_width: 800
+        image_height: 600
+
+        camera_url: "http://192.168.178.119:8123/local/esp32s3cam.jpg"
+
+        update_interval: 15s
+        page_id: ${page_identifier2}
+

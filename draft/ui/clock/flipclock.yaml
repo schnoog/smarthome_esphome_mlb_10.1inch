@@ -1,0 +1,305 @@
+# Flip Clock Widget - Modern Tide Dashboard Style
+#
+# vars:
+#    uid:
+#    page_id:      parent page id (default "main_page")
+#    row:
+#    column:
+#    row_span:
+#    column_span:
+#    click_page:
+#    font_size:      hour/minute digit size in px (default 54)
+#    day_font_size:  weekday/day-number size in px (default 20)
+#    colon_offset_y: fine-tune vertical position of the colon in px (default 0)
+#    height:       inner clock height within the cell, e.g. "100%" or "200" (default "100%")
+#    style:        "black" (default) or "white"  (kept for var-contract compatibility)
+#    show_date:    true/false (default false) - render an uppercase date line below the cards
+#
+# Two split-gradient cards, each split into a top and bottom row:
+#   Left card:  top = weekday abbreviation (e.g. "Mon."), bottom = hour (24h)
+#   Right card: top = day of month (e.g. "07."),          bottom = minute
+# An aqua blinking colon sits between the two cards.
+# An optional date line renders below the cards.
+#
+# All internal ids (fonts, styles, gradient, global, labels) are prefixed with
+# ${uid}, so this widget can be instantiated multiple times without ESPHome
+# complaining about redefined ids/fonts.
+#
+# Label IDs updated by the "!extend time_update" script:
+#    ${uid}_flip_hour_label, ${uid}_flip_min_label,
+#    ${uid}_flip_weekday_label, ${uid}_flip_day_label,
+#    ${uid}_flip_colon, ${uid}_flip_date
+#
+# NOTE: every font this module needs is declared locally below - it never depends on
+# fonts declared in the host dashboard.
+
+font:
+  # Digits - Space Grotesk @600 at the requested digit size
+  - file: "gfonts://Space+Grotesk@600"
+    id: ${uid}_flip_sg_font
+    size: ${font_size | default(54)}
+    bpp: 4
+    glyphs: "0123456789"
+
+  # Aqua colon between the two cards (~34px)
+  - file: "gfonts://Space+Grotesk@600"
+    id: ${uid}_flip_colon_font
+    size: 34
+    bpp: 4
+    glyphs: ":"
+
+  # Weekday / day-number labels, e.g. "Mon." / "07."
+  - file: "gfonts://IBM+Plex+Sans@600"
+    id: ${uid}_flip_day_font
+    size: ${day_font_size | default(20)}
+    bpp: 4
+    glyphs: "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789. "
+
+  # Optional date line (IBM Plex Sans @500, uppercase)
+  - file: "gfonts://IBM+Plex+Sans@500"
+    id: ${uid}_flip_date_font
+    size: 12
+    bpp: 4
+    glyphs: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789, "
+
+globals:
+  # Drives the blinking colon (toggled by the interval below)
+  - id: ${uid}_flip_colon_on
+    type: bool
+    restore_value: no
+    initial_value: "true"
+
+lvgl:
+  gradients:
+    - id: ${uid}_flip_card_gradient
+      direction: ver
+      stops:
+        - color: 0x1B2634
+          position: 0
+        - color: 0x141D29
+          position: 255
+
+  style_definitions:
+    - id: ${uid}_flip_card_style
+      bg_grad: ${uid}_flip_card_gradient
+      bg_grad_dir: ver
+      bg_opa: cover
+      radius: 12
+      border_width: 1
+      border_color: 0x2A3644
+      pad_all: 0
+      scrollbar_mode: "OFF"
+
+    - id: ${uid}_flip_digit_style
+      text_font: ${uid}_flip_sg_font
+      text_color: 0xE9EEF4
+      align: center
+
+    - id: ${uid}_flip_day_style
+      text_font: ${uid}_flip_day_font
+      text_color: 0xE9EEF4
+      align: center
+
+    - id: ${uid}_flip_outer_style
+      bg_opa: TRANSP
+
+    - id: ${uid}_flip_colon_style
+      text_font: ${uid}_flip_colon_font
+      text_color: 0x5FD4F4
+
+    - id: ${uid}_flip_date_style
+      text_font: ${uid}_flip_date_font
+      text_color: 0x7C90A5
+
+  pages:
+    - id: !extend ${page_id | default("main_page")}
+      widgets:
+        - obj:
+            id: ${uid}
+            grid_cell_row_pos: ${row}
+            grid_cell_column_pos: ${column}
+            grid_cell_row_span: ${row_span | default(1)}
+            grid_cell_column_span: ${column_span | default(1)}
+            grid_cell_x_align: stretch
+            grid_cell_y_align: stretch
+            styles: ${uid}_flip_outer_style
+            scrollbar_mode: "OFF"
+            scrollable: false
+            pad_all: 0
+            on_short_click:
+              then:
+                lvgl.page.show: ${click_page | default("main_page")}
+            widgets:
+
+              # Column: [ clock row ] then optional [ date line ]
+              - obj:
+                  width: 100%
+                  height: ${height | default("100%")}
+                  align: CENTER
+                  bg_opa: TRANSP
+                  pad_all: 2
+                  scrollbar_mode: "OFF"
+                  scrollable: false
+                  layout:
+                    type: FLEX
+                    flex_flow: COLUMN
+                    flex_align_main: CENTER
+                    flex_align_cross: CENTER
+                    flex_align_track: CENTER
+                  widgets:
+
+                    # ── Clock row: hour card, colon, minute card ──
+                    - obj:
+                        width: 100%
+                        flex_grow: 1
+                        bg_opa: TRANSP
+                        pad_all: 0
+                        scrollbar_mode: "OFF"
+                        scrollable: false
+                        layout:
+                          type: FLEX
+                          flex_flow: ROW
+                          flex_align_main: CENTER
+                          flex_align_cross: CENTER
+                          flex_align_track: CENTER
+                          pad_column: 6
+                        widgets:
+
+                          # ── Left card: weekday (top) + hour (bottom) ──
+                          - obj:
+                              styles: ${uid}_flip_card_style
+                              flex_grow: 1
+                              height: 100%
+                              scrollable: false
+                              layout:
+                                type: FLEX
+                                flex_flow: COLUMN
+                                flex_align_main: CENTER
+                                flex_align_cross: CENTER
+                                flex_align_track: CENTER
+                                pad_row: 2
+                              widgets:
+                                - label:
+                                    id: ${uid}_flip_weekday_label
+                                    styles: ${uid}_flip_day_style
+                                    align: CENTER
+                                    text: "Mon."
+                                - label:
+                                    id: ${uid}_flip_hour_label
+                                    styles: ${uid}_flip_digit_style
+                                    align: CENTER
+                                    text: "00"
+
+                          # ── Aqua blinking colon ──
+                          - label:
+                              id: ${uid}_flip_colon
+                              styles: ${uid}_flip_colon_style
+                              align: CENTER
+                              y: ${colon_offset_y | default(0)}
+                              text: ":"
+
+                          # ── Right card: day of month (top) + minute (bottom) ──
+                          - obj:
+                              styles: ${uid}_flip_card_style
+                              flex_grow: 1
+                              height: 100%
+                              scrollable: false
+                              layout:
+                                type: FLEX
+                                flex_flow: COLUMN
+                                flex_align_main: CENTER
+                                flex_align_cross: CENTER
+                                flex_align_track: CENTER
+                                pad_row: 2
+                              widgets:
+                                - label:
+                                    id: ${uid}_flip_day_label
+                                    styles: ${uid}_flip_day_style
+                                    align: CENTER
+                                    text: "01."
+                                - label:
+                                    id: ${uid}_flip_min_label
+                                    styles: ${uid}_flip_digit_style
+                                    align: CENTER
+                                    text: "00"
+
+                    # ── Optional date line ──
+                    - label:
+                        id: ${uid}_flip_date
+                        styles: ${uid}_flip_date_style
+                        text: ""
+                        hidden: ${"false" if show_date | default(false) else "true"}
+
+interval:
+  # Blink the colon (~2 s period: on 1 s, off 1 s)
+  - interval: 1s
+    then:
+      - lambda: 'id(${uid}_flip_colon_on) = !id(${uid}_flip_colon_on);'
+      - if:
+          condition:
+            lambda: 'return id(${uid}_flip_colon_on);'
+          then:
+            - lvgl.widget.update:
+                id: ${uid}_flip_colon
+                text_opa: 100%
+          else:
+            - lvgl.widget.update:
+                id: ${uid}_flip_colon
+                text_opa: 0%
+
+script:
+  - id: !extend time_update
+    then:
+
+      # ── 24-hour format ──
+      - lvgl.label.update:
+          id: ${uid}_flip_hour_label
+          text: !lambda |-
+            if (!id(system_time).now().is_valid()) return std::string("00");
+            return str_sprintf("%02d", id(system_time).now().hour);
+
+      # ── Minutes ──
+      - lvgl.label.update:
+          id: ${uid}_flip_min_label
+          text: !lambda |-
+            if (!id(system_time).now().is_valid()) return std::string("00");
+            return str_sprintf("%02d", id(system_time).now().minute);
+
+      # ── Weekday abbreviation, e.g. "Mon." ──
+      # day_of_week: 1 = Sunday ... 7 = Saturday (ESPHome ESPTime convention)
+      - lvgl.label.update:
+          id: ${uid}_flip_weekday_label
+          text: !lambda |-
+            auto t = id(system_time).now();
+            if (!t.is_valid()) return std::string("--");
+
+            static const char *weekdays[] = {
+              "", "Son.", "Mon.", "Die.", "Mit.", "Don.", "Fre.", "Sam."
+            };
+
+            return std::string(weekdays[t.day_of_week]);
+
+      # ── Day of month, e.g. "07." ──
+      - lvgl.label.update:
+          id: ${uid}_flip_day_label
+          text: !lambda |-
+            auto t = id(system_time).now();
+            if (!t.is_valid()) return std::string("--.");
+
+            char buf[8];
+            snprintf(buf, sizeof(buf), "%02d.", t.day_of_month);
+            return std::string(buf);
+
+      # ── Optional date ──
+      - lvgl.label.update:
+          id: ${uid}_flip_date
+          text: !lambda |-
+            auto t = id(system_time).now();
+            if (!t.is_valid()) return std::string("");
+
+            // e.g. "SATURDAY, JULY 18" — no leading zero on single-digit days
+            std::string s = t.strftime("%A, %B ") + std::to_string(t.day_of_month);
+
+            for (auto & c : s) c = toupper(c);
+
+            return s;
