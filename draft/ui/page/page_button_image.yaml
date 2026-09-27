@@ -30,9 +30,9 @@ lvgl:
             widgets:
               - button:
                   id: button_${uid}
+                  bg_opa: COVER
                   bg_image_src: ${background}
-                  bg_image_opa: 100%
-                  bg_opa: 0%
+                  bg_image_opa: ${bg_image_opa | default("40%")}
                   on_short_click:
                     then:
                       lvgl.page.show: ${click_page | default("main_page")}

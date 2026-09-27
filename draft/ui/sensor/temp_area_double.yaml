@@ -44,6 +44,8 @@ lvgl:
         widgets:
         - button:
             bg_opa: ${bg_opa | default("COVER")}
+            bg_image_src: ${background}
+            bg_image_opa: ${bg_image_opa | default("40%")}   
             id: button_${uid}
             clickable: false
             widgets:

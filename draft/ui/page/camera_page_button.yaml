@@ -1,0 +1,97 @@
+# Camera preview page button
+# Shows a periodically refreshed JPEG snapshot from an HTTP source.
+# Short click opens click_page.
+#
+# Requires a global `http_request:` component in the main config.
+#
+# vars:
+#   uid:             unique identifier
+#   row:             grid row
+#   column:          grid column
+#   text:            tile label
+#   camera_url:      URL returning a JPEG snapshot
+#   update_interval: refresh interval (default: 10s)
+#   image_width:     max. image width,  image is scaled to fit (default: 256)
+#   image_height:    max. image height, image is scaled to fit (default: 150)
+#   row_span:        (default: 1)
+#   column_span:     (default: 1)
+#   page_id:         parent page (default: main_page)
+#   click_page:      destination page name (default: main_page)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Snapshot download
+# ─────────────────────────────────────────────────────────────────────────────
+
+image:
+  - platform: online_image
+    id: ${uid}_snapshot
+    url: ${camera_url}
+    format: JPEG
+    type: RGB565
+    resize: ${image_width | default(256)}x${image_height | default(150)}
+    update_interval: ${update_interval | default("10s")}
+    on_download_finished:
+      then:
+        - lvgl.image.update:
+            id: image_${uid}
+            src: ${uid}_snapshot
+    on_error:
+      then:
+        # Previous image stays visible, only log the failure
+        - logger.log:
+            level: WARN
+            format: "Camera snapshot for ${uid} failed"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# LVGL tile
+# ─────────────────────────────────────────────────────────────────────────────
+
+lvgl:
+  pages:
+    - id: !extend ${page_id | default("main_page")}
+      widgets:
+        - container:
+            id: ${uid}
+            grid_cell_row_pos: ${row}
+            grid_cell_column_pos: ${column}
+            grid_cell_row_span: ${row_span | default(1)}
+            grid_cell_column_span: ${column_span | default(1)}
+            grid_cell_x_align: stretch
+            grid_cell_y_align: stretch
+            widgets:
+              - button:
+                  id: button_${uid}
+                  bg_opa: COVER
+                  bg_color: 0x000000
+                  # Image fills the tile edge to edge, corners follow button radius
+                  pad_all: 0
+                  clip_corner: true
+                  on_short_click:
+                    then:
+                      lvgl.page.show: ${click_page | default("main_page")}
+                  widgets:
+                    - image:
+                        id: image_${uid}
+                        src: ${uid}_snapshot
+                        align: center
+                        clickable: false
+
+                    - label:
+                        id: label_${uid}
+                        text: ${text}
+                        align: bottom_left
+                        x: 8
+                        y: -8
+                        # Feste helle Schrift statt Theme-Farbe
+                        text_color: 0xFFFFFF
+                        # Dunkle, halbtransparente Hinterlegung
+                        bg_color: 0x000000
+                        bg_opa: 55%
+                        radius: 8
+                        pad_left: 10
+                        pad_right: 10
+                        pad_top: 4
+                        pad_bottom: 4
+                        # Lange Texte kürzen statt überlaufen
+                        long_mode: dot
+                        max_width: 90%

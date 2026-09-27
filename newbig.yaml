@@ -220,6 +220,142 @@ packages:
       show_date: false
       page_id: "main_page"  
 
+  kamera_eingang: !include
+    file: draft/ui/page/camera_page_button.yaml
+    vars:
+      uid: kamera_eingang
+      row: 1
+      column: 6
+      column_span: 2
+      row_span: 2
+      text: "Eingang"
+      camera_url: "http://192.168.178.119:8123/local/ramdisk/esp32s3cam_256.jpg"
+      update_interval: 1s
+      image_width: 256
+      image_height: 192
+      click_page: "solar_page"
+      page_id: "main_page"
+
+
+  temp_display: !include
+    file: draft/ui/sensor/temp_hyg_pres_sensor.yaml
+    vars:
+      uid: temp_display
+      temperature_entity: "sensor.cyd1_temperatur_2"
+      humidity_entity: "sensor.cyd1_luftfeuchtigkeit_2"
+      pressure_entity: "sensor.cyd1_luftdruck_2"
+      row: 0
+      column: 0
+      column_span: 2
+      background: bg_tile_klima_bg
+      text: "Display"
+      sensor_font: "nunito_48"
+      label_font: "nunito_36"
+      icon: $mdi_thermometer
+      unit: "°C"
+      precision: 1
+      page_id: "main_page"
+
+
+  temp_multi_1_display: !include     # Wohnzimmer & Küche
+    file: draft/ui/sensor/temp_area_double.yaml
+    vars:
+      uid: temp_multi_1_display 
+      temperature_entity: "sensor.sensor_bmp280_3_bmp280_3_temperature_2" # WZ
+      temperature_entity2: "sensor.sensor_bmp280_4_bmp280_4_temperature_2" #Küche
+      temperature_1_icon: $mdi_sofa
+      temperature_2_icon: $mdi_silverware_fork_knife
+      row: 0
+      background: bg_tile_bg_erdgeschoss      
+      column: 2
+      column_span: 2
+      text: "EG"
+      icon: $mdi_thermometer
+      sensor_font: "nunito_48"
+      label_font: "nunito_36"      
+      unit: "%"
+      precision: 1
+      page_id: "main_page"   
+
+
+
+  temp_multi_vorne_display: !include     # Wohnzimmer & Küche
+    file: draft/ui/sensor/temp_area_double.yaml
+    vars:
+      uid: temp_multi_vorne_display 
+      temperature_entity: "sensor.sensor_bmp280_2_bmp280_2_temperature_2" # Box
+      temperature_entity2: "sensor.sensor_bmp280_2_ext_temperature_2" #Sensor
+      temperature_1_icon: $mdi_cupboard
+      temperature_2_icon: $mdi_thermometer_probe
+      row: 1
+      column: 0
+      background: bg_tile_bg_vor_dem_haus       
+      column_span: 2
+      text: "Vorne"
+      icon: $mdi_thermometer
+      sensor_font: "nunito_48"
+      label_font: "nunito_36"      
+      unit: "%"
+      precision: 1
+      page_id: "main_page"
+      bg_image_opa: 20%
+      bg_opa: 20%  
+
+
+
+  temp_multi_terrasse_display: !include     # Wohnzimmer & Küche
+    file: draft/ui/sensor/temp_area_double.yaml
+    vars:
+      uid: temp_multi_terrasse_display 
+      temperature_entity: "sensor.sensor_bmp280_1_bmp280_1_temperature_2" # Box
+      temperature_entity2: "sensor.sensor_bmp280_1_ext_temperature" #Sensor
+      temperature_1_icon: $mdi_flower_pollen_outline
+      temperature_2_icon: $mdi_thermometer_probe
+      row: 1
+      column: 2
+      column_span: 2
+      background: bg_tile_bg_terrasse       
+      text: "Terrasse"
+      icon: $mdi_thermometer
+      sensor_font: "nunito_48"
+      label_font: "nunito_36"      
+      unit: "%"
+      precision: 1
+      page_id: "main_page"  
+      bg_image_opa: 80%
+      bg_opa: 80%  
+
+
+
+  temp_soltest: !include
+    file: draft/ui/sensor/solar_curr.yaml
+    vars:
+      uid: temp_soltest
+      power_entity: sensor.stromzahler_momentanwirkleistung
+      solar_entity: sensor.hm_power      
+      row: 2
+      column: 0
+      column_span: 2
+      text: "Test"
+      page_id: "main_page"
+
+
+
+
+  heating_card: !include
+    file: draft/ui/sensor/heating.yaml
+    vars:
+      uid: heating_card
+      water_storage_entity: "sensor.boiler_dhw_storagetemp2"
+      boiler_entity: "sensor.boiler_boiltemp"
+      pressure_entity: "sensor.boiler_syspress"
+      burner_entity: "sensor.boiler_curburnpow"
+      row: 2
+      column: 2
+      column_span: 2
+      page_id: "main_page"
+
+
 
 
 
@@ -1097,8 +1233,27 @@ image:
     type: RGB565
     resize: 128x150  
 
+  - platform: file
+    file: "images/tile_klima_bg.png"
+    id: bg_tile_klima_bg
+    type: RGB565
+    resize: 256x150  
 
 
+  - platform: file
+    file: "images/tile_bg_erdgeschoss.png"
+    id: bg_tile_bg_erdgeschoss
+    type: RGB565
+    resize: 256x150  
 
+  - platform: file
+    file: "images/tile_bg_terrasse.png"
+    id: bg_tile_bg_terrasse
+    type: RGB565
+    resize: 256x150  
 
-
+  - platform: file
+    file: "images/tile_bg_vor_dem_haus.png"
+    id: bg_tile_bg_vor_dem_haus
+    type: RGB565
+    resize: 256x150  
