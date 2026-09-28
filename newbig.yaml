@@ -888,6 +888,19 @@ packages:
 # |_|          |___/                                  
 
 
+
+  page_button_camshow: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: img_kamera     
+      uid: page_button_camshow
+      row: 0
+      column: 0
+      column_span: 1      
+      text: "Kalender"
+      page_id: "cam_page"
+      click_page: "cam_page"
+
   page_button_cam_main: !include
     file: draft/ui/page/page_button_image.yaml
     vars:
@@ -1348,3 +1361,9 @@ image:
     id: bg_tile_bg_vor_dem_haus
     type: RGB565
     resize: 256x150  
+
+  - platform: file
+    file: "images/kamera.png"
+    id: img_kamera
+    type: RGB565
+   
