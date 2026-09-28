@@ -489,7 +489,7 @@ packages:
 #                                                                      |___/ 
 
   temp_soltest: !include
-    file: draft/solar_curr.yaml
+    file: draft/ui/sensor/solar_curr.yaml #draft/solar_curr.yaml
     vars:
       uid: temp_soltest
       power_entity: sensor.stromzahler_momentanwirkleistung

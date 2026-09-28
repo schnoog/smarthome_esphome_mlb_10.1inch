@@ -229,11 +229,12 @@ packages:
       column_span: 2
       row_span: 2
       text: "Eingang"
-      camera_url: "http://192.168.178.119:8123/local/ramdisk/esp32s3cam_256.jpg"
+#      camera_url: "http://192.168.178.119:8123/local/ramdisk/esp32s3cam_256.jpg"
+      camera_url: http://192.168.178.119:8123/local/ramdisk/esp32s3camX_256.jpg
       update_interval: 1s
       image_width: 256
       image_height: 192
-      click_page: "solar_page"
+      click_page: "cam_page"
       page_id: "main_page"
 
 
@@ -455,7 +456,7 @@ packages:
     file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
     vars:
       uid: media_vero_play_seefunk_btn
-      entity_id: "script.vero_play_radioseefunk"
+      entity_id: "script.ma_radio_seefunk_all"
       row: 1
       column: 0
       column_span: 1      
@@ -463,17 +464,17 @@ packages:
       page_id: "media_page"
       background: bg_mp_radio_seefunk
 
-  media_vero_play_badenfm_btn: !include
+  media_vero_play_badenfm_nd_btn: !include
     file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
     vars:
-      uid: media_vero_play_badenfm_btn
-      entity_id: "script.vero_play_badenfm"
+      uid: media_vero_play_badenfm_nd_btn
+      entity_id: "script.ma_radio_badenfm_all"
       row: 2
       column: 0
       column_span: 1      
-      text: "Baden FM"
+      text: "Baden FM -deutsch-"
       page_id: "media_page"
-      background: bg_mp_radio_badenfm
+      background: bg_mp_radio_badenfm_nd
 
 #Spalte 1 (2)
   media_vero_play_yoga_alt_btn: !include
@@ -492,7 +493,7 @@ packages:
     file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
     vars:
       uid: media_vero_play_swr1_btn
-      entity_id: "script.vero_play_swr1"
+      entity_id: "script.ma_radio_swr1_all"
       row: 1
       column: 1
       column_span: 1      
@@ -504,7 +505,7 @@ packages:
     file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
     vars:
       uid: media_vero_play_swr4_btn
-      entity_id: "script.vero_play_swr4"
+      entity_id: "script.ma_radio_swr4_all"
       row: 2
       column: 1
       column_span: 1      
@@ -520,7 +521,7 @@ packages:
     file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
     vars:
       uid: media_vero_play_swr3_btn
-      entity_id: "script.vero_play_swr3"
+      entity_id: "script.ma_radio_swr3_all"
       row: 1
       column: 2
       column_span: 1      
@@ -532,7 +533,7 @@ packages:
     file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
     vars:
       uid: media_vero_play_oldieantenne_btn
-      entity_id: "script.vero_play_oldieantenne"
+      entity_id: "script.ma_radio_oldieantenne_all"
       row: 2
       column: 2
       column_span: 1      
@@ -540,6 +541,35 @@ packages:
       page_id: "media_page"
       background: bg_mp_radio_oldieantenne
     
+#bg_mp_stream_stop
+#Spalte 3 (4)
+
+  media_vero_play_badenfm_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_vero_play_badenfm_btn
+      entity_id: "script.ma_radio_badenfm_all_duplizieren"
+      row: 1
+      column: 3
+      column_span: 1      
+      text: "Baden FM"
+      page_id: "media_page"
+      background: bg_mp_radio_badenfm
+
+
+  media_mp_stream_stop_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_mp_stream_stop_btn
+      entity_id: "script.ma_stopp"
+      row: 2
+      column: 3
+      column_span: 1      
+      text: "Stream stopp"
+      page_id: "media_page"
+      background: bg_mp_stream_stop
+
+
 
 
 #Spalte 4 (5)
@@ -847,6 +877,51 @@ packages:
       page_id: "cal_page"
       click_page: "main_page"
 
+
+
+
+#                          __                         
+#  _ __   __ _  __ _  ___ / /_     ___ __ _ _ __ ___  
+# | '_ \ / _` |/ _` |/ _ \ '_ \   / __/ _` | '_ ` _ \ 
+# | |_) | (_| | (_| |  __/ (_) | | (_| (_| | | | | | |
+# | .__/ \__,_|\__, |\___|\___/   \___\__,_|_| |_| |_|
+# |_|          |___/                                  
+
+
+  page_button_cam_main: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_home  
+      uid: page_button_cam_main
+      row: 3
+      column: 0
+      column_span: 1      
+      text: ""
+      icon: $mdi_home
+      page_id: "cam_page"
+      click_page: "main_page"
+
+
+#draft/ui/sensor/remote_image.yaml
+  cam_page_camview: !include
+    file: draft/ui/sensor/remote_image.yaml
+    vars:
+      uid: cam_page_camview
+      row: 0
+      column: 1
+      column_span: 5
+      row_span: 4      
+#      image_url: http://192.168.178.119:8123/local/ramdisk/esp32s3cam.jpg
+#      image_url: http://192.168.178.124:8081/
+      image_url: http://192.168.178.119:8123/local/ramdisk/esp32s3camX.jpg
+      update_interval: 1s
+      image_width: 800
+      image_height: 600
+      radius: 8
+      page_id: "cam_page"
+
+
+
 #  page_button_main: !include
 #    file: esphome-modular-lvgl-buttons/ui/page/page_button.yaml
 #    vars:
@@ -949,6 +1024,14 @@ lvgl:
       layout: 4x8
       styles: page_style
       <<: !include esphome-modular-lvgl-buttons/common/swipe_navigation.yaml      
+
+    - id: cam_page
+      layout: 4x6 
+      styles: page_style
+      <<: !include esphome-modular-lvgl-buttons/common/swipe_navigation.yaml      
+
+
+
 
 
   top_layer:
@@ -1195,12 +1278,20 @@ image:
     type: RGB565
     resize: 128x150 
 
+  - platform: file
+    file: "images/tile_stream_stop.png"
+    id: bg_mp_stream_stop
+    type: RGB565
+    resize: 128x150 
 
 
 
 
-
-
+  - platform: file
+    file: "images/radio_badenfm_nd_128_150.png"
+    id: bg_mp_radio_badenfm_nd
+    type: RGB565
+    resize: 128x150  
 
   - platform: file
     file: "images/radio_badenfm_128_150.png"

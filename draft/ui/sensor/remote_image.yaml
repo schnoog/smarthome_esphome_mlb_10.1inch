@@ -1,8 +1,7 @@
-# Camera preview page button
-# Shows a periodically refreshed JPEG snapshot from an HTTP source.
-# The snapshot is only refreshed while the parent page is visible;
+# Remote image tile (no button)
+# Shows a periodically refreshed image from an HTTP source.
+# The image is only refreshed while the parent page is visible;
 # switching to the page triggers an immediate refresh.
-# Short click opens click_page.
 #
 # Requires a global `http_request:` component in the main config.
 #
@@ -10,15 +9,15 @@
 #   uid:             unique identifier
 #   row:             grid row
 #   column:          grid column
-#   text:            tile label
-#   camera_url:      URL returning a JPEG snapshot
+#   image_url:       URL returning the image
+#   image_format:    JPEG | PNG | BMP (default: JPEG)
 #   update_interval: refresh interval (default: 10s)
 #   image_width:     max. image width,  image is scaled to fit (default: 256)
 #   image_height:    max. image height, image is scaled to fit (default: 150)
+#   radius:          corner radius of the tile (default: 0)
 #   row_span:        (default: 1)
 #   column_span:     (default: 1)
 #   page_id:         parent page (default: main_page)
-#   click_page:      destination page name (default: main_page)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Visibility tracking
@@ -39,7 +38,7 @@ interval:
             lambda: |-
               return lv_scr_act() == id(${page_id | default("main_page")})->obj;
           then:
-            - component.update: ${uid}_snapshot
+            - component.update: ${uid}_remote
 
   # Detect the page becoming visible -> refresh immediately
   - interval: 500ms
@@ -50,20 +49,20 @@ interval:
               return !id(${uid}_visible) &&
                      lv_scr_act() == id(${page_id | default("main_page")})->obj;
           then:
-            - component.update: ${uid}_snapshot
+            - component.update: ${uid}_remote
       - lambda: |-
           id(${uid}_visible) =
               lv_scr_act() == id(${page_id | default("main_page")})->obj;
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Snapshot download
+# Image download
 # ─────────────────────────────────────────────────────────────────────────────
 
 image:
   - platform: online_image
-    id: ${uid}_snapshot
-    url: ${camera_url}
-    format: JPEG
+    id: ${uid}_remote
+    url: ${image_url}
+    format: ${image_format | default("JPEG")}
     type: RGB565
     resize: ${image_width | default(256)}x${image_height | default(150)}
     # Refresh is driven by the intervals above
@@ -72,13 +71,13 @@ image:
       then:
         - lvgl.image.update:
             id: image_${uid}
-            src: ${uid}_snapshot
+            src: ${uid}_remote
     on_error:
       then:
         # Previous image stays visible, only log the failure
         - logger.log:
             level: WARN
-            format: "Camera snapshot for ${uid} failed"
+            format: "Remote image for ${uid} failed"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # LVGL tile
@@ -96,40 +95,18 @@ lvgl:
             grid_cell_column_span: ${column_span | default(1)}
             grid_cell_x_align: stretch
             grid_cell_y_align: stretch
+            # Plain black tile, image edge to edge
+            bg_color: 0x000000
+            bg_opa: COVER
+            border_width: 0
+            pad_all: 0
+            radius: ${radius | default(0)}
+            clip_corner: true
+            scrollable: false
+            clickable: false
             widgets:
-              - button:
-                  id: button_${uid}
-                  bg_opa: COVER
-                  bg_color: 0x000000
-                  # Image fills the tile edge to edge, corners follow button radius
-                  pad_all: 0
-                  clip_corner: true
-                  on_short_click:
-                    then:
-                      lvgl.page.show: ${click_page | default("main_page")}
-                  widgets:
-                    - image:
-                        id: image_${uid}
-                        src: ${uid}_snapshot
-                        align: center
-                        clickable: false
-
-                    - label:
-                        id: label_${uid}
-                        text: ${text}
-                        align: bottom_left
-                        x: 8
-                        y: -8
-                        # Feste helle Schrift statt Theme-Farbe
-                        text_color: 0xFFFFFF
-                        # Dunkle, halbtransparente Hinterlegung
-                        bg_color: 0x000000
-                        bg_opa: 55%
-                        radius: 8
-                        pad_left: 10
-                        pad_right: 10
-                        pad_top: 4
-                        pad_bottom: 4
-                        # Lange Texte kürzen statt überlaufen
-                        long_mode: dot
-                        max_width: 90%
+              - image:
+                  id: image_${uid}
+                  src: ${uid}_remote
+                  align: center
+                  clickable: false
