@@ -197,6 +197,7 @@ packages:
 # Remote — Home Assistant sensor entity
 ### MAIN PAGE
 
+
 #  ____                  _ 
 # |  _ \ __ _  __ _  ___/ |
 # | |_) / _` |/ _` |/ _ \ |
@@ -204,9 +205,7 @@ packages:
 # |_|   \__,_|\__, |\___|_|
 #             |___/        
 # 4x8
-
-
-
+# ##PAGE1
   flip_combi_main: !include
     file: draft/ui/clock/flipclock.yaml
     vars:
@@ -229,7 +228,6 @@ packages:
       column_span: 2
       row_span: 2
       text: "Eingang"
-#      camera_url: "http://192.168.178.119:8123/local/ramdisk/esp32s3cam_256.jpg"
       camera_url: http://192.168.178.119:8123/local/ramdisk/esp32s3camX_256.jpg
       update_interval: 1s
       image_width: 256
@@ -424,7 +422,7 @@ packages:
 # |_|   \__,_|\__, |\___|_____|    |_| |_| |_|\___|\__,_|_|\__,_|
 #             |___/                                              
      
-
+# ##PAGE2
   flip_combi_media: !include
     file: draft/ui/clock/flipclock.yaml
     vars:
@@ -439,7 +437,7 @@ packages:
       page_id: "media_page"  
 
 
-#Spalte 0 (1)
+  # Spalte 0 (1)
   media_vero_play_yoga_akt_btn: !include
     file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
     vars:
@@ -476,7 +474,7 @@ packages:
       page_id: "media_page"
       background: bg_mp_radio_badenfm_nd
 
-#Spalte 1 (2)
+  # Spalte 1 (2)
   media_vero_play_yoga_alt_btn: !include
     file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
     vars:
@@ -515,7 +513,7 @@ packages:
 
 
 
-#Spalte 2 (3)
+  # Spalte 2 (3)
 
   media_vero_play_swr3_btn: !include
     file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
@@ -541,8 +539,7 @@ packages:
       page_id: "media_page"
       background: bg_mp_radio_oldieantenne
     
-#bg_mp_stream_stop
-#Spalte 3 (4)
+  # Spalte 3 (4)
 
   media_vero_play_badenfm_btn: !include
     file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
@@ -572,7 +569,7 @@ packages:
 
 
 
-#Spalte 4 (5)
+  # Spalte 4 (5)
   media_avr_tv_btn: !include
     file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
     vars:
@@ -609,7 +606,7 @@ packages:
       page_id: "media_page"
       background: bg_avr_aux
 
-#Spalte 5 (6)
+ # Spalte 5 (6)
 
   media_tv_pwr_btn: !include
     file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
@@ -751,6 +748,54 @@ packages:
       font_size: 54
       show_date: false
       page_id: "heating_page"  
+
+
+# Remote — Home Assistant sensor entity
+    
+
+  daymode_boilder_heating: !include
+    file: esphome-modular-lvgl-buttons/ui/text_sensor/remote.yaml
+    vars:
+      uid: daymode_boilder_heating
+      entity_id: "sensor.thermostat_hc1_modetype"
+      row: 0
+      column: 0
+      text: "Betriebsart"
+      icon: $mdi_thermometer
+      page_id: "heating_page"     
+
+
+# Remote — Home Assistant sensor entity
+  outdoor_temp_heating_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/sensor/remote.yaml
+    vars:
+      uid: outdoor_temp_heating
+      entity_id: "sensor.boiler_outdoortemp"
+      row: 0
+      column: 1
+      column_span: 2
+      text: "Heizung Aussensensor"
+      icon: $mdi_thermometer
+      unit: "°C"
+      precision: 1
+      page_id: "heating_page"        
+
+  saisonmode_boilder_heating: !include
+    file: esphome-modular-lvgl-buttons/ui/text_sensor/remote.yaml
+    vars:
+      uid: saisonmode_boilder_heating
+      entity_id: "sensor.thermostat_hc1_summermode"
+      row: 0
+      column: 3
+      text: "Saison"
+      icon: $mdi_thermometer
+      page_id: "heating_page" 
+
+
+
+
+
+
 
 
   page_button_heating_main: !include
@@ -1367,3 +1412,14 @@ image:
     id: img_kamera
     type: RGB565
    
+  - platform: file
+    file: "images/dummy_128x150.png"
+    id: dummy128
+    type: RGB565
+    resize: 128x150
+
+  - platform: file
+    file: "images/dummy_250x150.png"
+    id: dummy256
+    type: RGB565   
+    resize: 256x150
