@@ -754,17 +754,7 @@ packages:
 
     
 
-  daymode_boilder_heating: !include
-    file: esphome-modular-lvgl-buttons/ui/text_sensor/remote.yaml
-    vars:
-      uid: daymode_boilder_heating
-      entity_id: "sensor.thermostat_hc1_modetype"
-      row: 0
-      column: 0
-      text: "Betriebsart"
-      icon: $mdi_thermometer
-      page_id: "heating_page"     
-      text_font: "nunito_48"
+
 
 
 
@@ -773,7 +763,7 @@ packages:
     vars:
       uid: img_heating_daypart
       entity_id: "sensor.thermostat_hc1_modetype"
-      row: 1
+      row: 0
       column: 0
       column_span: 1
       match: "day"
@@ -782,7 +772,32 @@ packages:
       page_id: "heating_page"
 
 
+  img_heating_saison: !include
+    file: draft/ui/image_text_sensor/image_text_sensor_remote.yaml
+    vars:
+      uid: img_heating_saison
+      entity_id: "sensor.thermostat_hc1_summermode"
+      row: 0
+      column: 1
+      column_span: 1
+      match: "summer"
+      image_true: bg_heizung_sommer
+      image_false: bg_heizung_winter
+      page_id: "heating_page"
 
+# Remote — Home Assistant sensor entity
+  outdoor_temp_heating_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/sensor/remote.yaml
+    vars:
+      uid: outdoor_temp_heating_btn
+      entity_id: "sensor.boiler_outdoortemp"
+      row: 0
+      column: 2
+      text: "Aussen"
+      icon: $mdi_thermometer
+      unit: "°C"
+      precision: 1
+      page_id: "heating_page"
   #binary_sensor.boiler_burngas burner
 
 
