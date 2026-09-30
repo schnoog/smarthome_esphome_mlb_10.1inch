@@ -767,30 +767,19 @@ packages:
       text_font: "nunito_48"
 
 
-  outdoor_temp_heating_btn: !include
-    file: esphome-modular-lvgl-buttons/ui/sensor/remote.yaml
-    vars:
-      uid: outdoor_temp_heating
-      entity_id: "sensor.boiler_outdoortemp"
-      row: 0
-      column: 1
-      column_span: 2
-      text: "Heizung Aussensensor"
-      icon: $mdi_thermometer
-      unit: "°C"
-      precision: 1
-      page_id: "heating_page"        
 
-  saisonmode_boilder_heating: !include
-    file: esphome-modular-lvgl-buttons/ui/text_sensor/remote.yaml
+  img_heating_daypart: !include
+    file: draft/ui/image_text_sensor/image_text_sensor_remote.yaml
     vars:
-      uid: saisonmode_boilder_heating
-      entity_id: "sensor.thermostat_hc1_summermode"
-      row: 0
-      column: 3
-      text: "Saison"
-      icon: $mdi_thermometer
-      page_id: "heating_page" 
+      uid: img_heating_daypart
+      entity_id: "sensor.thermostat_hc1_modetype"
+      row: 1
+      column: 0
+      column_span: 1
+      match: "day"
+      image_true: bg_heizung_tag
+      image_false: bg_heizung_nacht
+      page_id: "heating_page"
 
 
 
@@ -1202,54 +1191,7 @@ font:
     ]
 
 image:
-  - platform: file
-    file: "images/swr1.png"
-    id: bg_swr1
-    type: RGB565
-    resize: 120x120
-  - platform: file
-    file: "images/swr3.png"
-    id: bg_swr3
-    type: RGB565
-    resize: 120x120    
-  - platform: file
-    file: "images/swr4.png"
-    id: bg_swr4
-    type: RGB565
-    resize: 120x120
-
-
-  - platform: file
-    file: "images/seefunk.png"
-    id: bg_seefunk
-    type: RGB565
-    resize: 120x120
-  - platform: file
-    file: "images/oldieantenne.png"
-    id: bg_oldieantenne
-    type: RGB565
-    resize: 120x120
-  - platform: file
-    file: "images/badenfm.png"
-    id: bg_badenfm
-    type: RGB565
-    resize: 120x120            
-
-  - platform: file
-    file: "images/avr_l.png"
-    id: bg_avr_l
-    type: RGB565
-    resize: 120x120     
-  - platform: file
-    file: "images/avr_m.png"
-    id: bg_avr_m
-    type: RGB565
-    resize: 120x120     
-  - platform: file
-    file: "images/avr_r.png"
-    id: bg_avr_r
-    type: RGB565
-    resize: 120x120     
+ 
 
   - platform: file
     file: "images/tile_heizung.png"
@@ -1414,15 +1356,51 @@ image:
     file: "images/kamera.png"
     id: img_kamera
     type: RGB565
-   
+
   - platform: file
-    file: "images/dummy_128x150.png"
-    id: dummy128
+    file: "images/heizung_tag_128_150.png"
+    id: bg_heizung_tag
     type: RGB565
     resize: 128x150
 
   - platform: file
-    file: "images/dummy_250x150.png"
-    id: dummy256
-    type: RGB565   
-    resize: 256x150
+    file: "images/heizung_nacht_128_150.png"
+    id: bg_heizung_nacht
+    type: RGB565
+    resize: 128x150
+
+  - platform: file
+    file: "images/heizung_sommer_128_150.png"
+    id: bg_heizung_sommer
+    type: RGB565
+    resize: 128x150
+
+  - platform: file
+    file: "images/heizung_winter_128_150.png"
+    id: bg_heizung_winter
+    type: RGB565
+    resize: 128x150
+
+  - platform: file
+    file: "images/heizung_brenner_an_128_150.png"
+    id: bg_heizung_brenner_an
+    type: RGB565
+    resize: 128x150
+
+  - platform: file
+    file: "images/heizung_brenner_aus_128_150.png"
+    id: bg_heizung_brenner_aus
+    type: RGB565
+    resize: 128x150
+
+  - platform: file
+    file: "images/heizung_zirkulation_an_128_150.png"
+    id: bg_heizung_zirkulation_an
+    type: RGB565
+    resize: 128x150
+
+  - platform: file
+    file: "images/heizung_zirkulation_aus_128_150.png"
+    id: bg_heizung_zirkulation_aus
+    type: RGB565
+    resize: 128x150
