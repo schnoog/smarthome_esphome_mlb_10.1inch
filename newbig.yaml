@@ -752,19 +752,31 @@ packages:
       page_id: "heating_page"  
 
 
-    
+  img_heating_mode_btn: !include
+    file: draft/ui/image_text_sensor/image_text_sensor_remote.yaml
+    vars:
+      uid: img_heating_mode
+      entity_id: "select.thermostat_hc1_mode"
+      row: 0
+      column: 0
+      column_span: 1
+      match: "auto"
+      image_true: bg_heizung_auto
+      image_false: bg_heizung_man
+      page_id: "heating_page"
+   
 
 
 
 
 
-  img_heating_daypart: !include
+  img_heating_daypart_btn: !include
     file: draft/ui/image_text_sensor/image_text_sensor_remote.yaml
     vars:
       uid: img_heating_daypart
       entity_id: "sensor.thermostat_hc1_modetype"
       row: 0
-      column: 0
+      column: 1
       column_span: 1
       match: "day"
       image_true: bg_heizung_tag
@@ -772,18 +784,18 @@ packages:
       page_id: "heating_page"
 
 
-  img_heating_saison: !include
-    file: draft/ui/image_text_sensor/image_text_sensor_remote.yaml
-    vars:
-      uid: img_heating_saison
-      entity_id: "sensor.thermostat_hc1_summermode"
-      row: 0
-      column: 1
-      column_span: 1
-      match: "summer"
-      image_true: bg_heizung_sommer
-      image_false: bg_heizung_winter
-      page_id: "heating_page"
+#  img_heating_saison_btn: !include
+#    file: draft/ui/image_text_sensor/image_text_sensor_remote.yaml
+#    vars:
+#      uid: img_heating_saison
+#      entity_id: "sensor.thermostat_hc1_summermode"
+#      row: 0
+#      column: 2
+#      column_span: 1
+#      match: "summer"
+#      image_true: bg_heizung_sommer
+#      image_false: bg_heizung_winter
+#      page_id: "heating_page"
 
 # Remote — Home Assistant sensor entity
   outdoor_temp_heating_btn: !include
@@ -792,13 +804,43 @@ packages:
       uid: outdoor_temp_heating_btn
       entity_id: "sensor.boiler_outdoortemp"
       row: 0
-      column: 2
+      column: 3
+      column_span: 2
       text: "Aussen"
       icon: $mdi_thermometer
       unit: "°C"
       precision: 1
       page_id: "heating_page"
+      sensor_font: "nunito_48"
+      label_font: "nunito_36"
+
   #binary_sensor.boiler_burngas burner
+
+#  img_heating_burner_btn: !include
+#    file: draft/ui/image_text_sensor/image_text_sensor_remote.yaml
+#    vars:
+#      uid: img_heating_burner
+#      entity_id: "binary_sensor.boiler_burngas"
+#      row: 1
+#      column: 0
+#      column_span: 1
+#      match: "on"
+#      image_true: bg_heizung_brenner_an
+ #     image_false: bg_heizung_brenner_aus
+ #     page_id: "heating_page"
+
+  #zulauf-temp
+  #ruecklauf-temp
+
+
+
+  #binary_sensor.boiler_tapwateractive
+  #
+
+
+
+
+
 
 
 
@@ -1419,3 +1461,27 @@ image:
     id: bg_heizung_zirkulation_aus
     type: RGB565
     resize: 128x150
+
+  - platform: file
+    file: "images/heizung_automatisch.png"
+    id: bg_heizung_auto
+    type: RGB565
+    resize: 128x150
+
+  - platform: file
+    file: "images/heizung_manuell.png"
+    id: bg_heizung_man
+    type: RGB565
+    resize: 128x150
+
+  - platform: file
+    file: "images/temp_heizung_zulauf.png"
+    id: bg_heizung_zl
+    type: RGB565
+    resize: 256x150
+
+  - platform: file
+    file: "images/temp_heizung_ruecklauf.png"
+    id: bg_heizung_rl
+    type: RGB565
+    resize: 256x150
