@@ -1,0 +1,104 @@
+# Remote sensor tile — displays a live value from a Home Assistant sensor entity.
+# Read-only: no action scripts, no detail page.
+#
+# vars:
+#   uid:          unique identifier
+#   entity_id:    HA sensor entity, e.g. "sensor.outdoor_temperature"
+#   attribute:    HA attribute to display instead of state (optional, default: state)
+#   row:          grid row
+#   column:       grid column
+#   text:         sensor name shown on tile
+#   icon:         icon glyph
+#   background:   image id used as tile background (optional, default: no image)
+#   bg_image_opa: opacity of the background image, 0%-100% (optional, default: 100%)
+#   bg_opa:       button background opacity. 0%-100% or TRANSP or COVER
+#                 (optional, default: COVER without background, TRANSP with background)
+#   unit:         unit string appended to value, e.g. "°C"  (optional, default "")
+#   precision:    decimal places                             (optional, default 1)
+#   row_span:     (default: 1)
+#   column_span:  (default: 1)
+#   page_id:      parent page (default: main_page)
+#   label_font:   font for the label
+#   sensor_font:  font for the sensor value
+
+globals:
+  - id: ${uid}_current_value
+    type: float
+    initial_value: '0.0'
+
+lvgl:
+  pages:
+    - id: !extend ${page_id | default("main_page")}
+      widgets:
+        - container:
+            id: ${uid}_tile
+            grid_cell_row_pos: ${row}
+            grid_cell_column_pos: ${column}
+            grid_cell_row_span: ${row_span | default(1)}
+            grid_cell_column_span: ${column_span | default(1)}
+            grid_cell_x_align: stretch
+            grid_cell_y_align: stretch
+            widgets:
+              - button:
+                  id: button_${uid}
+                  bg_opa: ${ bg_opa | default('COVER' if (background | default('')) == '' else 'TRANSP') }
+                  bg_image_opa: ${bg_image_opa | default("100%")}
+                  clickable: false
+                  widgets:
+                    # Icon — hidden when no "icon" var is given
+                    - label:
+                        id: icon_${uid}
+                        hidden: ${ 'true' if (icon | default('')) == '' else 'false' }
+                        text_font: $icon_font
+                        align: ${icon_align | default("top_left")}
+                        text_color: $icon_off_color
+                        text: "${icon | default('')}"
+                    # Label — hidden when no "text" var is given
+                    - label:
+                        id: label_${uid}
+                        hidden: ${ 'true' if (text | default('')) == '' else 'false' }
+                        align: ${label_align | default("bottom_left")}
+                        long_mode: wrap
+                        width: 70%
+                        text_color: $label_off_color
+                        text_font: ${label_font | default(text_font)}
+                        text: "${text | default('')}"
+                    - label:
+                        id: value_${uid}
+                        align: ${value_align | default("top_right")}
+                        text_font: ${sensor_font | default(text_font)}
+                        text_color: $label_on_color
+                        text: "--"
+
+
+# ── Background image (only generated when "background" is given) ────────────
+esphome:
+  on_boot:
+    - priority: -100
+      then:
+        - lambda: |-
+            ${ ('lv_obj_set_style_bg_image_src(id(button_' ~ uid ~ '), id(' ~ background ~ ')->get_lv_image_dsc(), LV_PART_MAIN);') if (background | default('')) != '' else '' }
+
+# ── Subscribe to the HA sensor state ─────────────────────────────────────────
+sensor:
+  - platform: homeassistant
+    id: ${uid}_ha_value
+    entity_id: ${entity_id}
+    attribute: ${attribute | default("")}
+    internal: true
+    on_value:
+      - lambda: id(${uid}_current_value) = x;
+      - script.execute: ${uid}_sync_state
+
+script:
+  - id: ${uid}_sync_state
+    then:
+      - lvgl.label.update:
+          id: value_${uid}
+          text: !lambda |-
+            char buf[32];
+            snprintf(buf, sizeof(buf), "%.*f", ${precision | default(1)}, id(${uid}_current_value));
+            std::string s(buf);
+            std::string unit = "${unit | default("")}";
+            if (!unit.empty()) s += " " + unit;
+            return s;

@@ -764,10 +764,6 @@ packages:
       image_true: bg_heizung_auto
       image_false: bg_heizung_man
       page_id: "heating_page"
-   
-
-
-
 
 
   img_heating_daypart_btn: !include
@@ -784,18 +780,18 @@ packages:
       page_id: "heating_page"
 
 
-#  img_heating_saison_btn: !include
-#    file: draft/ui/image_text_sensor/image_text_sensor_remote.yaml
-#    vars:
-#      uid: img_heating_saison
-#      entity_id: "sensor.thermostat_hc1_summermode"
-#      row: 0
-#      column: 2
-#      column_span: 1
-#      match: "summer"
-#      image_true: bg_heizung_sommer
-#      image_false: bg_heizung_winter
-#      page_id: "heating_page"
+  img_heating_saison_btn: !include
+    file: draft/ui/image_text_sensor/image_text_sensor_remote.yaml
+    vars:
+      uid: img_heating_saison
+      entity_id: "sensor.thermostat_hc1_summermode"
+      row: 0
+      column: 2
+      column_span: 1
+      match: "summer"
+      image_true: bg_heizung_sommer
+      image_false: bg_heizung_winter
+      page_id: "heating_page"
 
 # Remote — Home Assistant sensor entity
   outdoor_temp_heating_btn: !include
@@ -804,7 +800,7 @@ packages:
       uid: outdoor_temp_heating_btn
       entity_id: "sensor.boiler_outdoortemp"
       row: 0
-      column: 3
+      column: 4
       column_span: 2
       text: "Aussen"
       icon: $mdi_thermometer
@@ -816,30 +812,162 @@ packages:
 
   #binary_sensor.boiler_burngas burner
 
-#  img_heating_burner_btn: !include
-#    file: draft/ui/image_text_sensor/image_text_sensor_remote.yaml
-#    vars:
-#      uid: img_heating_burner
-#      entity_id: "binary_sensor.boiler_burngas"
-#      row: 1
-#      column: 0
-#      column_span: 1
-#      match: "on"
-#      image_true: bg_heizung_brenner_an
- #     image_false: bg_heizung_brenner_aus
- #     page_id: "heating_page"
+  img_heating_burner_btn: !include
+    file: draft/ui/image_text_sensor/image_text_sensor_remote.yaml
+    vars:
+      uid: img_heating_burner
+      entity_id: "binary_sensor.boiler_burngas"
+      row: 1
+      column: 0
+      column_span: 1
+      match: "on"
+      image_true: bg_heizung_brenner_an
+      image_false: bg_heizung_brenner_aus
+      page_id: "heating_page"
 
-  #zulauf-temp
-  #ruecklauf-temp
+  img_heating_active_btn: !include
+    file: draft/ui/image_text_sensor/image_text_sensor_remote.yaml
+    vars:
+      uid: img_heating_active
+      entity_id: "binary_sensor.boiler_heatingactive"
+      row: 1
+      column: 1
+      column_span: 1
+      match: "on"
+      image_true: bg_heizkreis_aktiv
+      image_false: bg_heizkreis_inaktiv
+      page_id: "heating_page"
+
+
+
+    #/home/volker/Development/smarthome/systems/esphome/mlb/draft/ui/sensor/remote_with_image.yaml
+  temp_heating_vorlauf_btn: !include
+    file: draft/ui/sensor/remote_with_image.yaml
+    vars:
+      uid: temp_heating_vorlauf
+      entity_id: "sensor.boiler_curflowtemp"
+      row: 1
+      column: 2
+      column_span: 2
+      background: bg_heizung_zl
+      page_id: "heating_page"
+    #  text: "Zulauf"
+      value_align: bottom_right
+      label_align: right_mid
+      icon_align: bottom_mid
+    #  icon: $mdi_thermometer
+      unit: "°C"
+      precision: 1
+      sensor_font: "nunito_36"
+
+
+  temp_heating_ruecklauf_btn: !include
+    file: draft/ui/sensor/remote_with_image.yaml
+    vars:
+      uid: temp_heating_ruecklauf
+      entity_id: "sensor.boiler_rettemp"
+      row: 1
+      column: 4
+      column_span: 2
+      background: bg_heizung_rl
+      page_id: "heating_page"
+    #  text: "Rücklauf"
+    #  icon: $mdi_thermometer
+      value_align: bottom_right
+      label_align: right_mid
+      icon_align: bottom_mid      
+      unit: "°C"
+      precision: 1
+      sensor_font: "nunito_36"
+
+
+  heating_party: !include
+    file: draft/ui/sensor/remote_number_stepper.yaml
+    vars:
+      uid: heating_party
+      entity_id: "number.thermostat_hc1_party"
+      text: "Party"
+      max_value: 48
+      row: 1
+      column: 6
+      column_span: 2
+      sensor_font: "nunito_48"
+      label_font: "nunito_36"
+      page_id: "heating_page"
 
 
 
   #binary_sensor.boiler_tapwateractive
-  #
+  #binary_sensor.boiler_heatingactive
+
+  press_heating_sys_btn: !include
+    file: draft/ui/sensor/remote_with_image.yaml
+    vars:
+      uid: press_heating_sys
+      entity_id: "sensor.boiler_syspress"
+      row: 2
+      column: 0
+      column_span: 1
+      background: bg_heizung_druck
+      page_id: "heating_page"
+    #  text: "Rücklauf"
+    #  icon: $mdi_thermometer
+      value_align: center
+      unit: ""
+      precision: 1
+      sensor_font: "nunito_36"
+
+  img_tapwater_active_btn: !include
+    file: draft/ui/image_text_sensor/image_text_sensor_remote.yaml
+    vars:
+      uid: img_tapwater_active
+      entity_id: "binary_sensor.boiler_tapwateractive"
+      row: 2
+      column: 1
+      column_span: 1
+      match: "on"
+      image_true: bg_heisswasser_aktiv
+      image_false: bg_heisswasser_inaktiv
+      page_id: "heating_page"
+
+  temp_heating_wasser_btn: !include
+    file: draft/ui/sensor/remote_with_image.yaml
+    vars:
+      uid: temp_wasser_heating
+      entity_id: "sensor.boiler_dhw_storagetemp2"
+      row: 2
+      column: 2
+      column_span: 2
+      background: bg_heizung_wassertemp
+      page_id: "heating_page"
+    #  text: "Rücklauf"
+    #  icon: $mdi_thermometer
+      value_align: bottom_right
+      label_align: right_mid
+      icon_align: bottom_mid      
+      unit: "°C"
+      precision: 1
+      sensor_font: "nunito_36"
 
 
-
-
+  temp_heating_boiler_btn: !include
+    file: draft/ui/sensor/remote_with_image.yaml
+    vars:
+      uid: temp_boiler_heating
+      entity_id: "sensor.boiler_boiltemp"
+      row: 2
+      column: 4
+      column_span: 2
+      background: bg_heizung_boilertemp
+      page_id: "heating_page"
+    #  text: "Rücklauf"
+    #  icon: $mdi_thermometer
+      value_align: bottom_right
+      label_align: right_mid
+      icon_align: bottom_mid      
+      unit: "°C"
+      precision: 1
+      sensor_font: "nunito_36"
 
 
 
@@ -1419,69 +1547,150 @@ image:
     id: bg_heizung_tag
     type: RGB565
     resize: 128x150
+    transparency: alpha_channel
 
   - platform: file
     file: "images/heizung_nacht_128_150.png"
     id: bg_heizung_nacht
     type: RGB565
     resize: 128x150
+    transparency: alpha_channel
 
   - platform: file
     file: "images/heizung_sommer_128_150.png"
     id: bg_heizung_sommer
     type: RGB565
     resize: 128x150
+    transparency: alpha_channel
 
   - platform: file
     file: "images/heizung_winter_128_150.png"
     id: bg_heizung_winter
     type: RGB565
     resize: 128x150
-
-  - platform: file
-    file: "images/heizung_brenner_an_128_150.png"
-    id: bg_heizung_brenner_an
-    type: RGB565
-    resize: 128x150
-
-  - platform: file
-    file: "images/heizung_brenner_aus_128_150.png"
-    id: bg_heizung_brenner_aus
-    type: RGB565
-    resize: 128x150
-
-  - platform: file
-    file: "images/heizung_zirkulation_an_128_150.png"
-    id: bg_heizung_zirkulation_an
-    type: RGB565
-    resize: 128x150
-
-  - platform: file
-    file: "images/heizung_zirkulation_aus_128_150.png"
-    id: bg_heizung_zirkulation_aus
-    type: RGB565
-    resize: 128x150
-
-  - platform: file
-    file: "images/heizung_automatisch.png"
-    id: bg_heizung_auto
-    type: RGB565
-    resize: 128x150
-
-  - platform: file
-    file: "images/heizung_manuell.png"
-    id: bg_heizung_man
-    type: RGB565
-    resize: 128x150
+    transparency: alpha_channel
 
   - platform: file
     file: "images/temp_heizung_zulauf.png"
     id: bg_heizung_zl
     type: RGB565
     resize: 256x150
+    transparency: alpha_channel
 
   - platform: file
     file: "images/temp_heizung_ruecklauf.png"
     id: bg_heizung_rl
     type: RGB565
     resize: 256x150
+    transparency: alpha_channel
+
+  - platform: file
+    file: "images/temp_boiler.png"
+    id: bg_heizung_boilertemp
+    type: RGB565
+    resize: 256x150
+    transparency: alpha_channel
+
+  - platform: file
+    file: "images/temp_wasservorrat.png"
+    id: bg_heizung_wassertemp
+    type: RGB565
+    resize: 256x150
+    transparency: alpha_channel
+
+
+
+  - platform: file
+    file: "images/heizung_brenner_an_128_150.png"
+    id: bg_heizung_brenner_an
+    type: RGB565
+    resize: 128x150
+    transparency: alpha_channel
+
+  - platform: file
+    file: "images/heizung_brenner_aus_128_150.png"
+    id: bg_heizung_brenner_aus
+    type: RGB565
+    resize: 128x150
+    transparency: alpha_channel
+
+  - platform: file
+    file: "images/heizung_zirkulation_an_128_150.png"
+    id: bg_heizung_zirkulation_an
+    type: RGB565
+    resize: 128x150
+    transparency: alpha_channel
+
+  - platform: file
+    file: "images/heizung_zirkulation_aus_128_150.png"
+    id: bg_heizung_zirkulation_aus
+    type: RGB565
+    resize: 128x150
+    transparency: alpha_channel
+
+
+  - platform: file
+    file: "images/heizung_automatisch.png"
+    id: bg_heizung_auto
+    type: RGB565
+    resize: 128x150
+    transparency: alpha_channel
+
+  - platform: file
+    file: "images/heizung_manuell.png"
+    id: bg_heizung_man
+    type: RGB565
+    resize: 128x150
+    transparency: alpha_channel
+
+  - platform: file
+    file: "images/heizung_systemdruck_wert.png"
+    id: bg_heizung_druck
+    type: RGB565
+    resize: 128x150
+    transparency: alpha_channel
+ 
+  - platform: file
+    file: "images/heizkreis_aktiv.png"
+    id: bg_heizkreis_aktiv
+    type: RGB565
+    resize: 128x150
+    transparency: alpha_channel
+
+  - platform: file
+    file: "images/heizkreis_inaktiv.png"
+    id: bg_heizkreis_inaktiv
+    type: RGB565
+    resize: 128x150
+    transparency: alpha_channel
+
+  - platform: file
+    file: "images/heisswasser_aktiv.png"
+    id: bg_heisswasser_aktiv
+    type: RGB565
+    resize: 128x150
+    transparency: alpha_channel
+
+  - platform: file
+    file: "images/heisswasser_inaktiv.png"
+    id: bg_heisswasser_inaktiv
+    type: RGB565
+    resize: 128x150
+    transparency: alpha_channel
+    #heizung_systemdruck_wert.png
+
+
+
+debug:
+  update_interval: 10s
+
+sensor:
+  - platform: debug
+    free:
+      name: "Heap frei"
+    block:
+      name: "Heap größter Block"
+    psram:
+      name: "PSRAM frei"
+    loop_time:
+      name: "Loop Time"

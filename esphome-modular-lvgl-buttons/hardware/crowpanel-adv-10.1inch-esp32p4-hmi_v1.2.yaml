@@ -25,9 +25,12 @@ esp32:
   flash_size: 16MB
   framework:
     type: esp-idf
-    advanced:
-      execute_from_psram: true
-      enable_idf_experimental_features: true
+#    sdkconfig_options:
+#      CONFIG_FREERTOS_PLACE_FUNCTIONS_INTO_FLASH: y
+#      CONFIG_RINGBUF_PLACE_FUNCTIONS_INTO_FLASH: y    
+#    advanced:
+#      execute_from_psram: true
+#      enable_idf_experimental_features: true
 
 psram:
   mode: hex

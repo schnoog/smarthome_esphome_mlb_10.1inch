@@ -1,0 +1,155 @@
+---
+# Remote number stepper tile — shows and sets a Home Assistant number entity
+# (e.g. heating party mode in hours) with − / + buttons.
+# Changes are sent to HA after a short pause, so several taps = one action call.
+#
+# Requires: in HA → Settings → Devices & Services → ESPHome → this device →
+#           Configure → "Allow the device to perform Home Assistant actions"
+#
+# vars:
+#   uid:          unique identifier
+#   entity_id:    HA number entity, e.g. "number.thermostat_hc1_party"
+#   row:          grid row
+#   column:       grid column
+#   text:         title shown on tile (optional, default: "")
+#   unit:         unit after the value (optional, default: "h")
+#   off_text:     text shown when value is 0 (optional, default: "Aus")
+#   min_value:    minimum (optional, default: 0)
+#   max_value:    maximum (optional, default: 48)
+#   step:         step per tap (optional, default: 1)
+#   row_span:     (default: 1)
+#   column_span:  (default: 2)
+#   page_id:      parent page (default: main_page)
+#   label_font:   font for title and buttons
+#   sensor_font:  font for the value
+
+globals:
+  - id: ${uid}_value
+    type: int
+    initial_value: '0'
+  - id: ${uid}_editing
+    type: bool
+    initial_value: 'false'
+
+lvgl:
+  pages:
+    - id: !extend ${page_id | default("main_page")}
+      widgets:
+        - container:
+            id: ${uid}_tile
+            grid_cell_row_pos: ${row}
+            grid_cell_column_pos: ${column}
+            grid_cell_row_span: ${row_span | default(1)}
+            grid_cell_column_span: ${column_span | default(2)}
+            grid_cell_x_align: stretch
+            grid_cell_y_align: stretch
+            widgets:
+              - button:
+                  id: button_${uid}
+                  clickable: false
+                  checkable: true
+                  checked:
+                    bg_color: $button_on_color
+                  widgets:
+                    - label:
+                        id: label_${uid}
+                        align: top_mid
+                        text_font: ${label_font | default(text_font)}
+                        text_color: $label_off_color
+                        text: "${text | default('')}"
+                    - label:
+                        id: value_${uid}
+                        align: center
+                        y: 6
+                        text_font: ${sensor_font | default(text_font)}
+                        text_color: $label_on_color
+                        text: "--"
+                    # minus
+                    - button:
+                        id: minus_${uid}
+                        align: left_mid
+                        width: 64
+                        height: 64
+                        radius: 32
+                        bg_color: very_dark_gray
+                        widgets:
+                          - label:
+                              align: center
+                              text_font: ${label_font | default(text_font)}
+                              text: "-"
+                        on_click:
+                          - lambda: |-
+                              int v = id(${uid}_value) - ${step | default(1)};
+                              if (v < ${min_value | default(0)}) v = ${min_value | default(0)};
+                              id(${uid}_value) = v;
+                              id(${uid}_editing) = true;
+                          - script.execute: ${uid}_render
+                          - script.execute: ${uid}_send
+                    # plus
+                    - button:
+                        id: plus_${uid}
+                        align: right_mid
+                        width: 64
+                        height: 64
+                        radius: 32
+                        bg_color: very_dark_gray
+                        widgets:
+                          - label:
+                              align: center
+                              text_font: ${label_font | default(text_font)}
+                              text: "+"
+                        on_click:
+                          - lambda: |-
+                              int v = id(${uid}_value) + ${step | default(1)};
+                              if (v > ${max_value | default(48)}) v = ${max_value | default(48)};
+                              id(${uid}_value) = v;
+                              id(${uid}_editing) = true;
+                          - script.execute: ${uid}_render
+                          - script.execute: ${uid}_send
+
+# ── Read the current value from HA ──────────────────────────────────────────
+sensor:
+  - platform: homeassistant
+    id: ${uid}_ha_value
+    entity_id: ${entity_id}
+    internal: true
+    on_value:
+      # ignore HA updates while the user is still tapping
+      - lambda: |-
+          if (!id(${uid}_editing) && !std::isnan(x)) id(${uid}_value) = (int) lroundf(x);
+      - script.execute: ${uid}_render
+
+script:
+  # Update value label and on/off look of the tile
+  - id: ${uid}_render
+    mode: queued
+    then:
+      - lvgl.label.update:
+          id: value_${uid}
+          text: !lambda |-
+            int v = id(${uid}_value);
+            if (v <= 0) return std::string("${off_text | default('Aus')}");
+            char buf[16];
+            snprintf(buf, sizeof(buf), "%d ${unit | default('h')}", v);
+            return std::string(buf);
+      - lvgl.widget.update:
+          id: button_${uid}
+          state:
+            checked: !lambda 'return id(${uid}_value) > 0;'
+
+  # Send to HA 1.5 s after the last tap (restart = debounce)
+  - id: ${uid}_send
+    mode: restart
+    then:
+      - delay: 1500ms
+      - homeassistant.action:
+          action: number.set_value
+          data:
+            entity_id: ${entity_id}
+          data_template:
+            value: "{{ v }}"
+          variables:
+            v: 'return id(${uid}_value);'
+      # give HA time to report the new value back before accepting updates again
+      - delay: 3s
+      - lambda: 'id(${uid}_editing) = false;'
