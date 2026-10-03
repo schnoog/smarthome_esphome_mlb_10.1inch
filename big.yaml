@@ -196,34 +196,48 @@ packages:
 # Remote — Home Assistant sensor entity
 ### MAIN PAGE
 
-# ██████╗  █████╗  ██████╗ ███████╗     ██╗
-# ██╔══██╗██╔══██╗██╔════╝ ██╔════╝    ███║
-# ██████╔╝███████║██║  ███╗█████╗      ╚██║
-# ██╔═══╝ ██╔══██║██║   ██║██╔══╝       ██║
-# ██║     ██║  ██║╚██████╔╝███████╗     ██║
-# ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚══════╝     ╚═╝
-#                                          
 
-# ########     ###     ######   ########       ##                 ########   #######  ##      ##      #####   
-# ##     ##   ## ##   ##    ##  ##           ####                 ##     ## ##     ## ##  ##  ##     ##   ##  
-# ##     ##  ##   ##  ##        ##             ##                 ##     ## ##     ## ##  ##  ##    ##     ## 
-# ########  ##     ## ##   #### ######         ##      #######    ########  ##     ## ##  ##  ##    ##     ## 
-# ##        ######### ##    ##  ##             ##                 ##   ##   ##     ## ##  ##  ##    ##     ## 
-# ##        ##     ## ##    ##  ##             ##                 ##    ##  ##     ## ##  ##  ##     ##   ##  
-# ##        ##     ##  ######   ########     ######               ##     ##  #######   ###  ###       #####   
+#  ____                  _ 
+# |  _ \ __ _  __ _  ___/ |
+# | |_) / _` |/ _` |/ _ \ |
+# |  __/ (_| | (_| |  __/ |
+# |_|   \__,_|\__, |\___|_|
+#             |___/        
+# 4x8
+# ##PAGE1
+ #Content
+  flip_combi_main: !include
+    file: draft/ui/clock/flipclock.yaml
+    vars:
+      uid: flip_combi_main
+      row: 0
+      column: 6
+      row_span: 1
+      column_span: 2
+      height: 100%
+      font_size: 54
+      show_date: false
+      page_id: "main_page"  
 
-# [0][1][2][3][4][5][6][7][8]
-# [x--x][x--x][ ][ ][ ][x--x]
+  kamera_eingang: !include
+    file: draft/ui/page/camera_page_button.yaml
+    vars:
+      uid: kamera_eingang
+      row: 1
+      column: 6
+      column_span: 2
+      row_span: 2
+      text: "Eingang"
+      camera_url: http://192.168.178.119:8123/local/ramdisk/esp32s3camX_256.jpg
+      update_interval: 1s
+      image_width: 256
+      image_height: 192
+      click_page: "cam_page"
+      page_id: "main_page"
 
 
-#   ____ _ _                 _       
-#  / ___| (_)_ __ ___   __ _| |_ ___ 
-# | |   | | | '_ ` _ \ / _` | __/ _ \
-# | |___| | | | | | | | (_| | ||  __/
-#  \____|_|_|_| |_| |_|\__,_|\__\___|
-#                                    
   temp_display: !include
-    file: draft/temp_hyg_pres_sensor.yaml
+    file: draft/ui/sensor/temp_hyg_pres_sensor.yaml
     vars:
       uid: temp_display
       temperature_entity: "sensor.cyd1_temperatur_2"
@@ -232,6 +246,7 @@ packages:
       row: 0
       column: 0
       column_span: 2
+      background: bg_tile_klima_bg
       text: "Display"
       sensor_font: "nunito_48"
       label_font: "nunito_36"
@@ -242,7 +257,7 @@ packages:
 
 
   temp_multi_1_display: !include     # Wohnzimmer & Küche
-    file: draft/temp_area_double.yaml
+    file: draft/ui/sensor/temp_area_double.yaml
     vars:
       uid: temp_multi_1_display 
       temperature_entity: "sensor.sensor_bmp280_3_bmp280_3_temperature_2" # WZ
@@ -250,6 +265,7 @@ packages:
       temperature_1_icon: $mdi_sofa
       temperature_2_icon: $mdi_silverware_fork_knife
       row: 0
+      background: bg_tile_bg_erdgeschoss      
       column: 2
       column_span: 2
       text: "EG"
@@ -259,57 +275,11 @@ packages:
       unit: "%"
       precision: 1
       page_id: "main_page"   
-#  ____        _          ___     _____ _                
-# |  _ \  __ _| |_ ___   ( _ )   |_   _(_)_ __ ___   ___ 
-# | | | |/ _` | __/ _ \  / _ \/\   | | | | '_ ` _ \ / _ \
-# | |_| | (_| | ||  __/ | (_>  <   | | | | | | | | |  __/
-# |____/ \__,_|\__\___|  \___/\/   |_| |_|_| |_| |_|\___|
-#                                                        
-
-  # Flip cal/clock
 
 
-
-  flip_combi: !include
-    file: draft/flipclock.yaml
-    vars:
-      uid: flip_combi
-      row: 0
-      column: 7
-      row_span: 1
-      column_span: 2
-      height: 100%
-      font_size: 54
-      show_date: false
-      page_id: "main_page"  
-
-
-
-
-
-
-# ########     ###     ######   ########       ##                 ########   #######  ##      ##       ##   
-# ##     ##   ## ##   ##    ##  ##           ####                 ##     ## ##     ## ##  ##  ##     ####   
-# ##     ##  ##   ##  ##        ##             ##                 ##     ## ##     ## ##  ##  ##       ##   
-# ########  ##     ## ##   #### ######         ##      #######    ########  ##     ## ##  ##  ##       ##   
-# ##        ######### ##    ##  ##             ##                 ##   ##   ##     ## ##  ##  ##       ##   
-# ##        ##     ## ##    ##  ##             ##                 ##    ##  ##     ## ##  ##  ##       ##   
-# ##        ##     ##  ######   ########     ######               ##     ##  #######   ###  ###      ###### 
-
-
-# [0][1][2][3][4][5][6][7][8]
-# [x--x][x--x][ ][ ][x][x][x]
-
-
-#   ____ _ _                 _       
-#  / ___| (_)_ __ ___   __ _| |_ ___ 
-# | |   | | | '_ ` _ \ / _` | __/ _ \
-# | |___| | | | | | | | (_| | ||  __/
-#  \____|_|_|_| |_| |_|\__,_|\__\___|
-#                                    
 
   temp_multi_vorne_display: !include     # Wohnzimmer & Küche
-    file: draft/temp_area_double.yaml
+    file: draft/ui/sensor/temp_area_double.yaml
     vars:
       uid: temp_multi_vorne_display 
       temperature_entity: "sensor.sensor_bmp280_2_bmp280_2_temperature_2" # Box
@@ -318,6 +288,7 @@ packages:
       temperature_2_icon: $mdi_thermometer_probe
       row: 1
       column: 0
+      background: bg_tile_bg_vor_dem_haus       
       column_span: 2
       text: "Vorne"
       icon: $mdi_thermometer
@@ -325,12 +296,14 @@ packages:
       label_font: "nunito_36"      
       unit: "%"
       precision: 1
-      page_id: "main_page"  
+      page_id: "main_page"
+      bg_image_opa: 20%
+      bg_opa: 20%  
 
 
 
   temp_multi_terrasse_display: !include     # Wohnzimmer & Küche
-    file: draft/temp_area_double.yaml
+    file: draft/ui/sensor/temp_area_double.yaml
     vars:
       uid: temp_multi_terrasse_display 
       temperature_entity: "sensor.sensor_bmp280_1_bmp280_1_temperature_2" # Box
@@ -340,6 +313,7 @@ packages:
       row: 1
       column: 2
       column_span: 2
+      background: bg_tile_bg_terrasse       
       text: "Terrasse"
       icon: $mdi_thermometer
       sensor_font: "nunito_48"
@@ -347,154 +321,19 @@ packages:
       unit: "%"
       precision: 1
       page_id: "main_page"  
-
-#  ____           _ _       
-# |  _ \ __ _  __| (_) ___  
-# | |_) / _` |/ _` | |/ _ \ 
-# |  _ < (_| | (_| | | (_) |
-# |_| \_\__,_|\__,_|_|\___/ 
-#                           
+      bg_image_opa: 80%
+      bg_opa: 80%  
 
 
-  ma_radio_badenfm: !include
-    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
-    vars:
-      uid: ma_radio_badenfm
-      entity_id: "script.ma_radio_badenfm_all"
-      row: 1
-      column: 6
-      text: "Baden FM"
-      icon: $mdi_radio
-      page_id: "main_page"
-      background: bg_badenfm
-
-  ma_radio_oldie: !include
-    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
-    vars:
-      uid: ma_radio_oldie
-      entity_id: "script.ma_radio_oldieantenne_all"
-      row: 1
-      column: 7
-      text: "Oldie Antenne"
-      icon: $mdi_radio
-      page_id: "main_page"
-      background: bg_oldieantenne
-
-  ma_radio_seefunk: !include
-    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
-    vars:
-      uid: ma_radio_seefunk
-      entity_id: "script.ma_radio_seefunk_all"
-      row: 1
-      column: 8
-      text: "Radio Seefunk"
-      icon: $mdi_radio
-      page_id: "main_page"
-      background: bg_seefunk
-
-
-
-
-    
-
-
-
-
-
-# ########     ###     ######   ########       ##                 ########   #######  ##      ##     #######  
-# ##     ##   ## ##   ##    ##  ##           ####                 ##     ## ##     ## ##  ##  ##    ##     ## 
-# ##     ##  ##   ##  ##        ##             ##                 ##     ## ##     ## ##  ##  ##           ## 
-# ########  ##     ## ##   #### ######         ##      #######    ########  ##     ## ##  ##  ##     #######  
-# ##        ######### ##    ##  ##             ##                 ##   ##   ##     ## ##  ##  ##    ##        
-# ##        ##     ## ##    ##  ##             ##                 ##    ##  ##     ## ##  ##  ##    ##        
-# ##        ##     ##  ######   ########     ######               ##     ##  #######   ###  ###     ######### 
-
-# [0][1][2][3][4][5][6][7][8]
-# [ ][ ][ ][ ][ ][ ][x][x][x]
-
-
-
-
-
-#  ____           _ _       
-# |  _ \ __ _  __| (_) ___  
-# | |_) / _` |/ _` | |/ _ \ 
-# |  _ < (_| | (_| | | (_) |
-# |_| \_\__,_|\__,_|_|\___/ 
-#                           
-
-  ma_radio_swrdrei: !include
-    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
-    vars:
-      uid: ma_radio_swrdrei
-      entity_id: "script.ma_radio_swr3_all"
-      row: 2
-      column: 6
-      text: "SWR3"
-      icon: $mdi_radio
-      page_id: "main_page"
-      background: bg_swr3
-
-  ma_radio_swreins: !include
-    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
-    vars:
-      uid: ma_radio_swreins
-      entity_id: "script.ma_radio_swr1_all"
-      row: 2
-      column: 7
-      text: "SWR1"
-      icon: $mdi_radio
-      page_id: "main_page"
-      background: bg_swr1 
-
-  ma_radio_swrvier: !include
-    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
-    vars:
-      uid: ma_radio_swrvier
-      entity_id: "script.ma_radio_swr4_all"
-      row: 2
-      column: 8
-      text: "SWR4"
-      icon: $mdi_radio
-      page_id: "main_page"
-      background: bg_swr4  
-
-# ########     ###     ######   ########       ##                 ########   #######  ##      ##     #######  
-# ##     ##   ## ##   ##    ##  ##           ####                 ##     ## ##     ## ##  ##  ##    ##     ## 
-# ##     ##  ##   ##  ##        ##             ##                 ##     ## ##     ## ##  ##  ##           ## 
-# ########  ##     ## ##   #### ######         ##      #######    ########  ##     ## ##  ##  ##     #######  
-# ##        ######### ##    ##  ##             ##                 ##   ##   ##     ## ##  ##  ##           ## 
-# ##        ##     ## ##    ##  ##             ##                 ##    ##  ##     ## ##  ##  ##    ##     ## 
-# ##        ##     ##  ######   ########     ######               ##     ##  #######   ###  ###      #######  
-
-# [0][1][2][3][4][5][6][7][8]
-# [x--x][x--x][ ][x][x][x][x]
-
-  page_button_next: !include
-    file: esphome-modular-lvgl-buttons/ui/page/page_button.yaml
-    vars:
-      uid: page_button_next
-      row: 3
-      column: 8
-      text: "Next"
-      icon: $mdi_page_next
-      page_id: "main_page"
-      click_page: "second_page"
-
-#  ____                           ___     _   _            _   _             
-# |  _ \ _____      _____ _ __   ( _ )   | | | | ___  __ _| |_(_)_ __   __ _ 
-# | |_) / _ \ \ /\ / / _ \ '__|  / _ \/\ | |_| |/ _ \/ _` | __| | '_ \ / _` |
-# |  __/ (_) \ V  V /  __/ |    | (_>  < |  _  |  __/ (_| | |_| | | | | (_| |
-# |_|   \___/ \_/\_/ \___|_|     \___/\/ |_| |_|\___|\__,_|\__|_|_| |_|\__, |
-#                                                                      |___/ 
 
   temp_soltest: !include
-    file: draft/ui/sensor/solar_curr.yaml #draft/solar_curr.yaml
+    file: draft/ui/sensor/solar_curr.yaml
     vars:
       uid: temp_soltest
       power_entity: sensor.stromzahler_momentanwirkleistung
       solar_entity: sensor.hm_power      
-      row: 3
+      power_consumption_total: sensor.keller_stromzahler_momentaner_gesamtverbrauch
+      row: 2
       column: 0
       column_span: 2
       text: "Test"
@@ -504,132 +343,1063 @@ packages:
 
 
   heating_card: !include
-    file: draft/heating.yaml
+    file: draft/ui/sensor/heating.yaml
     vars:
       uid: heating_card
       water_storage_entity: "sensor.boiler_dhw_storagetemp2"
       boiler_entity: "sensor.boiler_boiltemp"
       pressure_entity: "sensor.boiler_syspress"
       burner_entity: "sensor.boiler_curburnpow"
-      row: 3
+      row: 2
       column: 2
       column_span: 2
       page_id: "main_page"
-
-
-
-# __     __    _                      
-# \ \   / /__ | |_   _ _ __ ___   ___ 
-#  \ \ / / _ \| | | | | '_ ` _ \ / _ \
-#   \ V / (_) | | |_| | | | | | |  __/
-#    \_/ \___/|_|\__,_|_| |_| |_|\___|
-#                                     
-      
-
-
-  avr_vol_down_btn: !include
-    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+ #Nav
+  page_button_main_media: !include
+    file: draft/ui/page/page_button_image.yaml
     vars:
-      uid: avr_vol_down_btn
-      entity_id: "script.avr_vol_down"
+      background: bg_media     
+      uid: page_button_main_media
       row: 3
-      column: 5
-      column_span: 1      
-      text: "Vol -"
-      icon: $mdi_music
+      column: 0
+      column_span: 2      
+      text: "Media"
+      icon: $mdi_page_next
       page_id: "main_page"
-      background: bg_avr_l
+      click_page: "media_page"
+     
 
-  avr_vol_mute_btn: !include
-    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+  page_button_main_heating: !include
+    file: draft/ui/page/page_button_image.yaml
     vars:
-      uid: avr_vol_mute_btn
-      entity_id: "script.avr_vol_mute"
+      background: bg_heating     
+      uid: page_button_main_heating
+      row: 3
+      column: 2
+      column_span: 2      
+      text: "Heizung"
+      icon: $mdi_page_next
+      page_id: "main_page"
+      click_page: "heating_page"
+
+
+  page_button_main_solar: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_solar     
+      uid: page_button_main_solar
+      row: 3
+      column: 4
+      column_span: 2      
+      text: "Strom"
+      icon: $mdi_page_next
+      page_id: "main_page"
+      click_page: "solar_page"
+
+
+  page_button_main_cal: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_cal     
+      uid: page_button_main_cal
       row: 3
       column: 6
-      text: "Mute"
-      icon: $mdi_music
+      column_span: 2      
+      text: "Kalender"
+      icon: $mdi_page_next
       page_id: "main_page"
-      background: bg_avr_m
+      click_page: "cal_page"
 
-  avr_vol_up_btn: !include
+#  ____                  ____                          _ _       
+# |  _ \ __ _  __ _  ___|___ \      _ __ ___   ___  __| (_) __ _ 
+# | |_) / _` |/ _` |/ _ \ __) |    | '_ ` _ \ / _ \/ _` | |/ _` |
+# |  __/ (_| | (_| |  __// __/     | | | | | |  __/ (_| | | (_| |
+# |_|   \__,_|\__, |\___|_____|    |_| |_| |_|\___|\__,_|_|\__,_|
+#             |___/                                              
+     
+# ##PAGE2
+ #PageContent
+  flip_combi_media: !include
+    file: draft/ui/clock/flipclock.yaml
+    vars:
+      uid: flip_combi_media
+      row: 0
+      column: 6
+      row_span: 1
+      column_span: 2
+      height: 100%
+      font_size: 54
+      show_date: false
+      page_id: "media_page"  
+
+
+  # Spalte 0 (1)
+  media_vero_play_yoga_akt_btn: !include
     file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
     vars:
-      uid: avr_vol_up_btn
-      entity_id: "script.avr_vol_up"
-      row: 3
-      column: 7
-      column_span: 1      
-      text: "Vol +"
-      icon: $mdi_music
-      page_id: "main_page"
-      background: bg_avr_r
-
-
-# ██████╗  █████╗  ██████╗ ███████╗    ██████╗ 
-# ██╔══██╗██╔══██╗██╔════╝ ██╔════╝    ╚════██╗
-# ██████╔╝███████║██║  ███╗█████╗       █████╔╝
-# ██╔═══╝ ██╔══██║██║   ██║██╔══╝      ██╔═══╝ 
-# ██║     ██║  ██║╚██████╔╝███████╗    ███████╗
-# ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚══════╝    ╚══════╝
-#                                              
-
-  wz_klima: !include
-    file: draft/history_chart/history_chart.yaml
-    vars:
-      uid: wz_klima
-      entity_1: "sensor.cyd1_temperatur_2"
-      color_1: "0x3498DB"
-      y_min: "10"
-      y_max: "30"
-      ha_base_url: "http://192.168.178.119:8123"
-      history_lookback_hours: "6"
-      history_max_response_bytes: "245760"   # ggf. an deinen Sensor anpassen
-
-
-  wz_klima_widget: !include
-    file: draft/history_chart/history_chart_widget.yaml
-    vars:
-      uid: wz_klima
+      uid: media_vero_play_yoga_akt_btn
+      entity_id: "script.vero_play_yoga_neu"
       row: 0
       column: 0
-      row_span: 4
-      column_span: 7
-      chart_height: 400
-      button_y: -50
-      chartname: "Temperaturverlauf"
-      chart_top_offset: 70      
-      page_id: "second_page"
-      label_font: "nunito_48"
+      column_span: 1      
+      text: "Yoga aktuell"
+      page_id: "media_page"
+      background: bg_avr_yoga_akt
 
-#    .aMMMb  .aMMMb  dMMMMMMMMb dMMMMMP dMMMMb  .aMMMb 
-#   dMP"VMP dMP"dMP dMP"dMP"dMPdMP     dMP.dMP dMP"dMP 
-#  dMP     dMMMMMP dMP dMP dMPdMMMP   dMMMMK" dMMMMMP  
-# dMP.aMP dMP dMP dMP dMP dMPdMP     dMP"AMF dMP dMP   
-# VMMMP" dMP dMP dMP dMP dMPdMMMMMP dMP dMP dMP dMP    
-#                                                      
+  media_vero_play_seefunk_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_vero_play_seefunk_btn
+      entity_id: "script.ma_radio_seefunk_all"
+      row: 1
+      column: 0
+      column_span: 1      
+      text: "Seefunk"
+      page_id: "media_page"
+      background: bg_mp_radio_seefunk
 
-  camera:
-    !include
-      file: draft/camera_remote.yaml
+  media_vero_play_badenfm_nd_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_vero_play_badenfm_nd_btn
+      entity_id: "script.ma_radio_badenfm_all"
+      row: 2
+      column: 0
+      column_span: 1      
+      text: "Baden FM -deutsch-"
+      page_id: "media_page"
+      background: bg_mp_radio_badenfm_nd
 
-      vars:
-        uid: esp32s3cam
+  # Spalte 1 (2)
+  media_vero_play_yoga_alt_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_vero_play_yoga_alt_btn
+      entity_id: "script.vero_play_yoga_alt"
+      row: 0
+      column: 1
+      column_span: 1      
+      text: "Yoga letztes"
+      page_id: "media_page"
+      background: bg_avr_yoga_last
 
-        row: 0
-        column: 7
-        row_span: 2
-        column_span: 2
+  media_vero_play_swr1_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_vero_play_swr1_btn
+      entity_id: "script.ma_radio_swr1_all"
+      row: 1
+      column: 1
+      column_span: 1      
+      text: "SWR1"
+      page_id: "media_page"
+      background: bg_mp_radio_swr1
 
-        text: "Kamera"
+  media_vero_play_swr4_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_vero_play_swr4_btn
+      entity_id: "script.ma_radio_swr4_all"
+      row: 2
+      column: 1
+      column_span: 1      
+      text: "SWR4"
+      page_id: "media_page"
+      background: bg_mp_radio_swr4
 
-        image_width: 240
-        image_height: 176
 
-        camera_url: "http://192.168.178.119:8123/local/esp32s3cam.jpg"
 
-        update_interval: 15s
-        page_id: "second_page"
+  # Spalte 2 (3)
+
+  media_vero_play_swr3_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_vero_play_swr3_btn
+      entity_id: "script.ma_radio_swr3_all"
+      row: 1
+      column: 2
+      column_span: 1      
+      text: "SWR3"
+      page_id: "media_page"
+      background: bg_mp_radio_swr3
+
+  media_vero_play_oldieantenne_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_vero_play_oldieantenne_btn
+      entity_id: "script.ma_radio_oldieantenne_all"
+      row: 2
+      column: 2
+      column_span: 1      
+      text: "Oldie Antenne"
+      page_id: "media_page"
+      background: bg_mp_radio_oldieantenne
+    
+  # Spalte 3 (4)
+
+  media_vero_play_badenfm_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_vero_play_badenfm_btn
+      entity_id: "script.ma_radio_badenfm_all_duplizieren"
+      row: 1
+      column: 3
+      column_span: 1      
+      text: "Baden FM"
+      page_id: "media_page"
+      background: bg_mp_radio_badenfm
+
+
+  media_mp_stream_stop_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_mp_stream_stop_btn
+      entity_id: "script.ma_stopp"
+      row: 2
+      column: 3
+      column_span: 1      
+      text: "Stream stopp"
+      page_id: "media_page"
+      background: bg_mp_stream_stop
+
+
+
+
+  # Spalte 4 (5)
+  media_avr_tv_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_avr_tv_btn
+      entity_id: "script.avr_media_tv"
+      row: 0
+      column: 4
+      column_span: 1      
+      text: "TV"
+      page_id: "media_page"
+      background: bg_avr_tv
+
+  media_avr_mp_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_avr_mp_btn
+      entity_id: "script.avr_media_mp"
+      row: 1
+      column: 4
+      column_span: 1      
+      text: "DVD/MP"
+      page_id: "media_page"
+      background: bg_avr_media
+
+  media_avr_aux_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_avr_aux_btn
+      entity_id: "script.avr_media_aux"
+      row: 2
+      column: 4
+      column_span: 1      
+      text: "AUX"
+      page_id: "media_page"
+      background: bg_avr_aux
+
+  # Spalte 5 (6)
+
+  media_tv_pwr_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_tv_pwr_btn
+      entity_id: "script.tv_power"
+      row: 0
+      column: 5
+      column_span: 1      
+      text: "TV Power"
+      page_id: "media_page"
+      background: bg_tv_power
+
+  media_avr_power_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_avr_power_btn
+      entity_id: "script.avr_power"
+      row: 1
+      column: 5
+      column_span: 1      
+      text: "Power"
+      page_id: "media_page"
+      background: bg_avr_power
+
+  media_avr_mute_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_avr_mute_btn
+      entity_id: "script.avr_vol_mute"
+      row: 2
+      column: 5
+      column_span: 1      
+      text: "Aux"
+      page_id: "media_page"
+      background: bg_avr_v_mute
+
+
+
+
+  media_avr_vol_down_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_avr_vol_down_btn
+      entity_id: "script.avr_vol_down"
+      row: 2
+      column: 6
+      column_span: 2      
+      text: "Vol -"
+      icon: $mdi_music
+      page_id: "media_page"
+      background: bg_avr_v_minus
+
+  media_avr_vol_up_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
+    vars:
+      uid: media_avr_vol_up_btn
+      entity_id: "script.avr_vol_up"
+      row: 1
+      column: 6
+      column_span: 2      
+      text: "Vol +"
+      icon: $mdi_music
+      page_id: "media_page"
+      background: bg_avr_v_plus
+ # Nav
+  page_button_media_main: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_home     
+      uid: page_button_media_main
+      row: 3
+      column: 0
+      column_span: 2      
+      text: ""
+      icon: $mdi_home
+      page_id: "media_page"
+      click_page: "main_page"
+
+  page_button_media_heating: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_heating     
+      uid: page_button_media_heating
+      row: 3
+      column: 2
+      column_span: 2      
+      text: "Heizung"
+      icon: $mdi_page_next
+      page_id: "media_page"
+      click_page: "heating_page"
+
+
+  page_button_media_solar: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_solar     
+      uid: page_button_media_solar
+      row: 3
+      column: 4
+      column_span: 2      
+      text: "Strom"
+      icon: $mdi_page_next
+      page_id: "media_page"
+      click_page: "solar_page"
+
+
+  page_button_media_cal: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_cal     
+      uid: page_button_media_cal
+      row: 3
+      column: 6
+      column_span: 2      
+      text: "Kalender"
+      icon: $mdi_page_next
+      page_id: "media_page"
+      click_page: "cal_page"
+
+#  ____                  _____      _                _   _             
+# |  _ \ __ _  __ _  ___|___ /     | |__   ___  __ _| |_(_)_ __   __ _ 
+# | |_) / _` |/ _` |/ _ \ |_ \     | '_ \ / _ \/ _` | __| | '_ \ / _` |
+# |  __/ (_| | (_| |  __/___) |    | | | |  __/ (_| | |_| | | | | (_| |
+# |_|   \__,_|\__, |\___|____/     |_| |_|\___|\__,_|\__|_|_| |_|\__, |
+#             |___/                                              |___/ 
+
+# ##PAGE3
+ #PageContent
+  flip_combi_heating: !include
+    file: draft/ui/clock/flipclock.yaml
+    vars:
+      uid: flip_combi_heating
+      row: 0
+      column: 6
+      row_span: 1
+      column_span: 2
+      height: 100%
+      font_size: 54
+      show_date: false
+      page_id: "heating_page"  
+
+
+  img_heating_mode_btn: !include
+    file: draft/ui/image_text_sensor/image_text_sensor_remote.yaml
+    vars:
+      uid: img_heating_mode
+      entity_id: "select.thermostat_hc1_mode"
+      row: 0
+      column: 0
+      column_span: 1
+      match: "auto"
+      image_true: bg_heizung_auto
+      image_false: bg_heizung_man
+      page_id: "heating_page"
+
+
+  img_heating_daypart_btn: !include
+    file: draft/ui/image_text_sensor/image_text_sensor_remote.yaml
+    vars:
+      uid: img_heating_daypart
+      entity_id: "sensor.thermostat_hc1_modetype"
+      row: 0
+      column: 1
+      column_span: 1
+      match: "day"
+      image_true: bg_heizung_tag
+      image_false: bg_heizung_nacht
+      page_id: "heating_page"
+
+
+  img_heating_saison_btn: !include
+    file: draft/ui/image_text_sensor/image_text_sensor_remote.yaml
+    vars:
+      uid: img_heating_saison
+      entity_id: "sensor.thermostat_hc1_summermode"
+      row: 0
+      column: 2
+      column_span: 1
+      match: "summer"
+      image_true: bg_heizung_sommer
+      image_false: bg_heizung_winter
+      page_id: "heating_page"
+
+  # Remote — Home Assistant sensor entity
+  outdoor_temp_heating_btn: !include
+    file: esphome-modular-lvgl-buttons/ui/sensor/remote.yaml
+    vars:
+      uid: outdoor_temp_heating_btn
+      entity_id: "sensor.boiler_outdoortemp"
+      row: 0
+      column: 4
+      column_span: 2
+      text: "Aussen"
+      icon: $mdi_thermometer
+      unit: "°C"
+      precision: 1
+      page_id: "heating_page"
+      sensor_font: "nunito_48"
+      label_font: "nunito_36"
+
+  #binary_sensor.boiler_burngas burner
+
+  img_heating_burner_btn: !include
+    file: draft/ui/image_text_sensor/image_text_sensor_remote.yaml
+    vars:
+      uid: img_heating_burner
+      entity_id: "binary_sensor.boiler_burngas"
+      row: 1
+      column: 0
+      column_span: 1
+      match: "on"
+      image_true: bg_heizung_brenner_an
+      image_false: bg_heizung_brenner_aus
+      page_id: "heating_page"
+
+  img_heating_active_btn: !include
+    file: draft/ui/image_text_sensor/image_text_sensor_remote.yaml
+    vars:
+      uid: img_heating_active
+      entity_id: "binary_sensor.boiler_heatingactive"
+      row: 1
+      column: 1
+      column_span: 1
+      match: "on"
+      image_true: bg_heizkreis_aktiv
+      image_false: bg_heizkreis_inaktiv
+      page_id: "heating_page"
+
+
+
+    #/home/volker/Development/smarthome/systems/esphome/mlb/draft/ui/sensor/remote_with_image.yaml
+  temp_heating_vorlauf_btn: !include
+    file: draft/ui/sensor/remote_with_image.yaml
+    vars:
+      uid: temp_heating_vorlauf
+      entity_id: "sensor.boiler_curflowtemp"
+      row: 1
+      column: 2
+      column_span: 2
+      background: bg_heizung_zl
+      page_id: "heating_page"
+    #  text: "Zulauf"
+      value_align: bottom_right
+      label_align: right_mid
+      icon_align: bottom_mid
+    #  icon: $mdi_thermometer
+      unit: "°C"
+      precision: 1
+      sensor_font: "nunito_36"
+
+
+  temp_heating_ruecklauf_btn: !include
+    file: draft/ui/sensor/remote_with_image.yaml
+    vars:
+      uid: temp_heating_ruecklauf
+      entity_id: "sensor.boiler_rettemp"
+      row: 1
+      column: 4
+      column_span: 2
+      background: bg_heizung_rl
+      page_id: "heating_page"
+    #  text: "Rücklauf"
+    #  icon: $mdi_thermometer
+      value_align: bottom_right
+      label_align: right_mid
+      icon_align: bottom_mid      
+      unit: "°C"
+      precision: 1
+      sensor_font: "nunito_36"
+
+
+  heating_party: !include
+    file: draft/ui/sensor/remote_number_stepper.yaml
+    vars:
+      uid: heating_party
+      entity_id: "number.thermostat_hc1_party"
+      text: "Party"
+      max_value: 48
+      row: 1
+      column: 6
+      column_span: 2
+      sensor_font: "nunito_48"
+      label_font: "nunito_36"
+      page_id: "heating_page"
+
+
+
+  #binary_sensor.boiler_tapwateractive
+  #binary_sensor.boiler_heatingactive
+
+  press_heating_sys_btn: !include
+    file: draft/ui/sensor/remote_with_image.yaml
+    vars:
+      uid: press_heating_sys
+      entity_id: "sensor.boiler_syspress"
+      row: 2
+      column: 0
+      column_span: 1
+      background: bg_heizung_druck
+      page_id: "heating_page"
+    #  text: "Rücklauf"
+    #  icon: $mdi_thermometer
+      value_align: center
+      unit: ""
+      precision: 1
+      sensor_font: "nunito_36"
+
+  img_tapwater_active_btn: !include
+    file: draft/ui/image_text_sensor/image_text_sensor_remote.yaml
+    vars:
+      uid: img_tapwater_active
+      entity_id: "binary_sensor.boiler_tapwateractive"
+      row: 2
+      column: 1
+      column_span: 1
+      match: "on"
+      image_true: bg_heisswasser_aktiv
+      image_false: bg_heisswasser_inaktiv
+      page_id: "heating_page"
+
+  temp_heating_wasser_btn: !include
+    file: draft/ui/sensor/remote_with_image.yaml
+    vars:
+      uid: temp_wasser_heating
+      entity_id: "sensor.boiler_dhw_storagetemp2"
+      row: 2
+      column: 2
+      column_span: 2
+      background: bg_heizung_wassertemp
+      page_id: "heating_page"
+    #  text: "Rücklauf"
+    #  icon: $mdi_thermometer
+      value_align: bottom_right
+      label_align: right_mid
+      icon_align: bottom_mid      
+      unit: "°C"
+      precision: 1
+      sensor_font: "nunito_36"
+
+
+  temp_heating_boiler_btn: !include
+    file: draft/ui/sensor/remote_with_image.yaml
+    vars:
+      uid: temp_boiler_heating
+      entity_id: "sensor.boiler_boiltemp"
+      row: 2
+      column: 4
+      column_span: 2
+      background: bg_heizung_boilertemp
+      page_id: "heating_page"
+    #  text: "Rücklauf"
+    #  icon: $mdi_thermometer
+      value_align: bottom_right
+      label_align: right_mid
+      icon_align: bottom_mid      
+      unit: "°C"
+      precision: 1
+      sensor_font: "nunito_36"
+ #NAV
+  page_button_heating_main: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_home  
+      uid: page_button_heating_main
+      row: 3
+      column: 0
+      column_span: 2      
+      text: ""
+      icon: $mdi_home
+      page_id: "heating_page"
+      click_page: "main_page"
+
+  page_button_heating_media: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_media     
+      uid: page_button_heating_media
+      row: 3
+      column: 2
+      column_span: 2      
+      text: "Media"
+      icon: $mdi_page_next
+      page_id: "heating_page"
+      click_page: "media_page"
+     
+
+  page_button_heating_solar: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_solar     
+      uid: page_button_heating_solar
+      row: 3
+      column: 4
+      column_span: 2      
+      text: "Strom"
+      icon: $mdi_page_next
+      page_id: "heating_page"
+      click_page: "solar_page"
+
+
+  page_button_heating_cal: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_cal     
+      uid: page_button_heating_cal
+      row: 3
+      column: 6
+      column_span: 2      
+      text: "Kalender"
+      icon: $mdi_page_next
+      page_id: "heating_page"
+      click_page: "cal_page"
+#  ____                  _  _                  _            
+# |  _ \ __ _  __ _  ___| || |       ___  ___ | | __ _ _ __ 
+# | |_) / _` |/ _` |/ _ \ || |_     / __|/ _ \| |/ _` | '__|
+# |  __/ (_| | (_| |  __/__   _|    \__ \ (_) | | (_| | |   
+# |_|   \__,_|\__, |\___|  |_|      |___/\___/|_|\__,_|_|   
+#             |___/                                         
+
+# ##PAGE4
+
+  flip_combi_solar: !include
+    file: draft/ui/clock/flipclock.yaml
+    vars:
+      uid: flip_combi_solar
+      row: 0
+      column: 6
+      row_span: 1
+      column_span: 2
+      height: 100%
+      font_size: 54
+      show_date: false
+      page_id: "solar_page"  
+
+    #/home/volker/Development/smarthome/systems/esphome/mlb/draft/ui/sensor/remote_with_image.yaml
+  power_solar_currpower_btn: !include
+    file: draft/ui/sensor/remote_with_image.yaml
+    vars:
+      uid: power_solar_currpower
+      entity_id: "sensor.hm_power"
+      row: 0
+      column: 0
+      column_span: 2
+      background: bg_solar_aktuell_mc
+    #  text: "Solar aktuell"
+    #  icon: $mdi_thermometer
+      unit: "W"
+      precision: 0
+      sensor_font: "nunito_36"
+      value_align: bottom_right
+      label_align: right_mid
+      icon_align: bottom_mid
+      page_id: "solar_page"
+
+  power_solar_currpspower_btn: !include
+    file: draft/ui/sensor/remote_with_image.yaml
+    vars:
+      uid: power_solar_currpspower
+      entity_id: "sensor.solarbank_2_e1600_ac_solarleistung"
+      row: 0
+      column: 2
+      column_span: 2
+      background: bg_solarleistung_ps
+    #  text: "Solar aktuell"
+    #  icon: $mdi_thermometer
+      unit: "W"
+      precision: 0
+      sensor_font: "nunito_36"
+      value_align: bottom_right
+      label_align: right_mid
+      icon_align: bottom_mid
+      page_id: "solar_page"
+
+
+  power_hausabgabe_btn: !include
+    file: draft/ui/sensor/remote_with_image.yaml
+    vars:
+      uid: power_hausabgabe
+      entity_id: "sensor.solarbank_2_e1600_ac_ac_hausabgabe"
+      row: 1
+      column: 0
+      column_span: 2
+      background: bg_hauseinspeisung
+    #  text: "Solar aktuell"
+    #  icon: $mdi_thermometer
+      unit: "W"
+      precision: 0
+      sensor_font: "nunito_36"
+      value_align: bottom_right
+      label_align: right_mid
+      icon_align: bottom_mid
+      page_id: "solar_page"
+
+  power_hausabgabelimit_btn: !include
+    file: draft/ui/sensor/remote_with_image.yaml
+    vars:
+      uid: power_ehausabgabelimit
+      entity_id: "number.solarbank_2_e1600_ac_system_lastvorgabe"
+      row: 1
+      column: 2
+      column_span: 2
+      background: bg_hauseinspeisungslimit
+    #  text: "Solar aktuell"
+    #  icon: $mdi_thermometer
+      unit: "W"
+      precision: 0
+      sensor_font: "nunito_36"
+      value_align: bottom_right
+      label_align: right_mid
+      icon_align: bottom_mid
+      page_id: "solar_page"
+
+  power_akkustand_btn: !include
+    file: draft/ui/sensor/remote_with_image.yaml
+    vars:
+      uid: power_akkustand
+      entity_id: "sensor.solarbank_2_e1600_ac_ladestand"
+      row: 1
+      column: 4
+      column_span: 2
+      background: bg_akkuladestand
+    #  text: "Solar aktuell"
+    #  icon: $mdi_thermometer
+      unit: "%"
+      precision: 0
+      sensor_font: "nunito_36"
+      value_align: bottom_right
+      label_align: right_mid
+      icon_align: bottom_mid
+      page_id: "solar_page"
+
+
+
+  power_akkunet_btn: !include
+    file: draft/ui/sensor/remote_with_image.yaml
+    vars:
+      uid: power_akkunet
+      entity_id: "sensor.solarbank_2_e1600_ac_akkuleistung"
+      row: 1
+      column: 6
+      column_span: 2
+      background: bg_akku_laden
+      background_pos: bg_akku_laden
+      background_neg: bg_akku_entladen
+    #  text: "Solar aktuell"
+    #  icon: $mdi_thermometer
+      unit: "W"
+      precision: 0
+      sensor_font: "nunito_36"
+      value_align: bottom_right
+      label_align: right_mid
+      icon_align: bottom_mid
+      page_id: "solar_page"
+
+
+
+
+  power_einspeisung_btn: !include
+    file: draft/ui/sensor/remote_with_image.yaml
+    vars:
+      uid: power_einspeisung
+      entity_id: "sensor.stromzahler_momentanwirkleistung"
+      row: 2
+      column: 0
+      column_span: 2
+      background: bg_netzbezug_aktuell
+      background_pos: bg_netzbezug_aktuell
+      background_neg: bg_netzeinspeisung
+    #  text: "Solar aktuell"
+    #  icon: $mdi_thermometer
+      unit: "W"
+      precision: 0
+      sensor_font: "nunito_36"
+      value_align: bottom_right
+      label_align: right_mid
+      icon_align: bottom_mid
+      page_id: "solar_page"
+
+
+  power_aktverbrauch_btn: !include
+    file: draft/ui/sensor/remote_with_image.yaml
+    vars:
+      uid: power_aktverbrauch
+      entity_id: "sensor.keller_stromzahler_momentaner_gesamtverbrauch"
+      row: 2
+      column: 2
+      column_span: 2
+      background: bg_stromverbrauch_gesamt
+    #  text: "Solar aktuell"
+    #  icon: $mdi_thermometer
+      unit: "W"
+      precision: 0
+      sensor_font: "nunito_36"
+      value_align: bottom_right
+      label_align: right_mid
+      icon_align: bottom_mid
+      page_id: "solar_page"
+
+
+ # NAV
+  page_button_solar_main: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_home  
+      uid: page_button_solar_main
+      row: 3
+      column: 0
+      column_span: 2      
+      text: ""
+      icon: $mdi_home
+      page_id: "solar_page"
+      click_page: "main_page"
+
+  page_button_sol_media: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_media     
+      uid: page_button_sol_media
+      row: 3
+      column: 2
+      column_span: 2      
+      text: "Media"
+      icon: $mdi_page_next
+      page_id: "solar_page"
+      click_page: "media_page"
+
+
+  page_button_sol_heating: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_heating     
+      uid: page_button_sol_heating
+      row: 3
+      column: 4
+      column_span: 2      
+      text: "Heizung"
+      icon: $mdi_page_next
+      page_id: "solar_page"
+      click_page: "heating_page"
+
+
+  page_button_sol_cal: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_cal     
+      uid: page_button_sol_cal
+      row: 3
+      column: 6
+      column_span: 2      
+      text: "Kalender"
+      icon: $mdi_page_next
+      page_id: "solar_page"
+      click_page: "cal_page"
+
+
+
+#  ____                  ____                 _ 
+# |  _ \ __ _  __ _  ___| ___|       ___ __ _| |
+# | |_) / _` |/ _` |/ _ \___ \      / __/ _` | |
+# |  __/ (_| | (_| |  __/___) |    | (_| (_| | |
+# |_|   \__,_|\__, |\___|____/      \___\__,_|_|
+#             |___/                             
+
+# ##PAGE5
+ #PageContent
+
+
+
+
+
+  flip_combi_cal: !include
+    file: draft/ui/clock/flipclock.yaml
+    vars:
+      uid: flip_combi_cal
+      row: 0
+      column: 6
+      row_span: 1
+      column_span: 2
+      height: 100%
+      font_size: 54
+      show_date: false
+      page_id: "cal_page"  
+
+ #Nav
+  page_button_cal_main: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_home  
+      uid: page_button_cal_main
+      row: 5
+      column: 0
+      column_span: 2      
+      text: ""
+      icon: $mdi_home
+      page_id: "cal_page"
+      click_page: "main_page"
+
+
+
+
+  page_button_cal_media: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_media     
+      uid: page_button_cal_media
+      row: 5
+      column: 2
+      column_span: 2      
+      text: "Media"
+      icon: $mdi_page_next
+      page_id: "cal_page"
+      click_page: "media_page"
+     
+
+  page_button_cal_heating: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_heating     
+      uid: page_button_cal_heating
+      row: 5
+      column: 4
+      column_span: 2      
+      text: "Heizung"
+      icon: $mdi_page_next
+      page_id: "cal_page"
+      click_page: "heating_page"
+
+
+  page_button_cal_solar: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_solar     
+      uid: page_button_cal_solar
+      row: 5
+      column: 6
+      column_span: 2      
+      text: "Strom"
+      icon: $mdi_page_next
+      page_id: "cal_page"
+      click_page: "solar_page"
+
+
+
+
+
+#                          __                         
+#  _ __   __ _  __ _  ___ / /_     ___ __ _ _ __ ___  
+# | '_ \ / _` |/ _` |/ _ \ '_ \   / __/ _` | '_ ` _ \ 
+# | |_) | (_| | (_| |  __/ (_) | | (_| (_| | | | | | |
+# | .__/ \__,_|\__, |\___|\___/   \___\__,_|_| |_| |_|
+# |_|          |___/                                  
+
+# ##PAGE
+
+  page_button_camshow: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: img_kamera     
+      uid: page_button_camshow
+      row: 0
+      column: 0
+      column_span: 1      
+      text: "Kalender"
+      page_id: "cam_page"
+      click_page: "cam_page"
+
+  page_button_cam_main: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_home  
+      uid: page_button_cam_main
+      row: 3
+      column: 0
+      column_span: 1      
+      text: ""
+      icon: $mdi_home
+      page_id: "cam_page"
+      click_page: "main_page"
+
+
+  cam_page_camview: !include
+    file: draft/ui/sensor/remote_image.yaml
+    vars:
+      uid: cam_page_camview
+      row: 0
+      column: 1
+      column_span: 5
+      row_span: 4      
+  #      image_url: http://192.168.178.119:8123/local/ramdisk/esp32s3cam.jpg
+  #      image_url: http://192.168.178.124:8081/
+      image_url: http://192.168.178.119:8123/local/ramdisk/esp32s3camX.jpg
+      update_interval: 1s
+      image_width: 800
+      image_height: 600
+      radius: 8
+      page_id: "cam_page"
 
 
 
@@ -710,14 +1480,40 @@ lvgl:
   buffer_size: 100%
   pages:
     - id: main_page
-      layout: 4x9
+      layout: 4x8
       styles: page_style
       <<: !include esphome-modular-lvgl-buttons/common/swipe_navigation.yaml
 
-    - id: second_page
-      layout: 4x9
+    - id: media_page
+      layout: 4x8
       styles: page_style
       <<: !include esphome-modular-lvgl-buttons/common/swipe_navigation.yaml      
+
+
+    - id: heating_page
+      layout: 4x8
+      styles: page_style
+      <<: !include esphome-modular-lvgl-buttons/common/swipe_navigation.yaml      
+
+    - id: solar_page
+      layout: 4x8
+      styles: page_style
+      <<: !include esphome-modular-lvgl-buttons/common/swipe_navigation.yaml      
+
+
+    - id: cal_page
+      layout: 6x8
+      styles: page_style
+      <<: !include esphome-modular-lvgl-buttons/common/swipe_navigation.yaml      
+
+    - id: cam_page
+      layout: 4x6 
+      styles: page_style
+      <<: !include esphome-modular-lvgl-buttons/common/swipe_navigation.yaml      
+
+
+
+
 
   top_layer:
     widgets:
@@ -826,51 +1622,383 @@ font:
     ]
 
 image:
+ 
+
   - platform: file
-    file: "images/swr1.png"
-    id: bg_swr1
+    file: "images/tile_heizung.png"
+    id: bg_heating
     type: RGB565
-    resize: 120x120
+    resize: 256x150     
   - platform: file
-    file: "images/swr3.png"
-    id: bg_swr3
+    file: "images/tile_media.png"
+    id: bg_media
     type: RGB565
-    resize: 120x120    
+    resize: 256x150     
   - platform: file
-    file: "images/swr4.png"
-    id: bg_swr4
+    file: "images/tile_home.png"
+    id: bg_home
     type: RGB565
-    resize: 120x120
+    resize: 256x150     
+  - platform: file
+    file: "images/tile_solar.png"
+    id: bg_solar
+    type: RGB565
+    resize: 256x150     
+  - platform: file
+    file: "images/tile_kalender.png"
+    id: bg_cal
+    type: RGB565
+    resize: 256x150     
+
+  - platform: file
+    file: "images/tile_avr_lauter.png"
+    id: bg_avr_v_plus
+    type: RGB565
+    resize: 256x150     
+  - platform: file
+    file: "images/tile_avr_leiser.png"
+    id: bg_avr_v_minus
+    type: RGB565
+    resize: 256x150     
 
 
   - platform: file
-    file: "images/seefunk.png"
-    id: bg_seefunk
+    file: "images/tile_avr_aux.png"
+    id: bg_avr_aux
     type: RGB565
-    resize: 120x120
-  - platform: file
-    file: "images/oldieantenne.png"
-    id: bg_oldieantenne
-    type: RGB565
-    resize: 120x120
-  - platform: file
-    file: "images/badenfm.png"
-    id: bg_badenfm
-    type: RGB565
-    resize: 120x120            
+    resize: 128x150     
 
   - platform: file
-    file: "images/avr_l.png"
-    id: bg_avr_l
+    file: "images/tile_avr_tv.png"
+    id: bg_avr_tv
     type: RGB565
-    resize: 120x120     
+    resize: 128x150     
+
+
   - platform: file
-    file: "images/avr_m.png"
-    id: bg_avr_m
+    file: "images/tile_avr_media.png"
+    id: bg_avr_media
     type: RGB565
-    resize: 120x120     
+    resize: 128x150     
+
   - platform: file
-    file: "images/avr_r.png"
-    id: bg_avr_r
+    file: "images/tile_yoga_aktuell.png"
+    id: bg_avr_yoga_akt
     type: RGB565
-    resize: 120x120     
+    resize: 128x150     
+
+
+  - platform: file
+    file: "images/tile_yoga_letztes.png"
+    id: bg_avr_yoga_last
+    type: RGB565
+    resize: 128x150     
+
+  - platform: file
+    file: "images/tile_avr_mute.png"
+    id: bg_avr_v_mute
+    type: RGB565
+    resize: 128x150     
+
+  - platform: file
+    file: "images/tile_avr_power.png"
+    id: bg_avr_power
+    type: RGB565
+    resize: 128x150     
+
+  - platform: file
+    file: "images/tile_tv_power.png"
+    id: bg_tv_power
+    type: RGB565
+    resize: 128x150 
+
+  - platform: file
+    file: "images/tile_stream_stop.png"
+    id: bg_mp_stream_stop
+    type: RGB565
+    resize: 128x150 
+
+
+
+
+  - platform: file
+    file: "images/radio_badenfm_nd_128_150.png"
+    id: bg_mp_radio_badenfm_nd
+    type: RGB565
+    resize: 128x150  
+
+  - platform: file
+    file: "images/radio_badenfm_128_150.png"
+    id: bg_mp_radio_badenfm
+    type: RGB565
+    resize: 128x150  
+  - platform: file
+    file: "images/radio_seefunk_128_150.png"
+    id: bg_mp_radio_seefunk
+    type: RGB565
+    resize: 128x150   
+  - platform: file
+    file: "images/radio_swr3_128_150.png"
+    id: bg_mp_radio_swr3
+    type: RGB565
+    resize: 128x150   
+  - platform: file
+    file: "images/radio_swr1_128_150.png"
+    id: bg_mp_radio_swr1
+    type: RGB565
+    resize: 128x150   
+  - platform: file
+    file: "images/radio_swr4_128_150.png"
+    id: bg_mp_radio_swr4
+    type: RGB565
+    resize: 128x150   
+  - platform: file
+    file: "images/radio_oldieantenne_128_150.png"
+    id: bg_mp_radio_oldieantenne
+    type: RGB565
+    resize: 128x150  
+
+  - platform: file
+    file: "images/tile_klima_bg.png"
+    id: bg_tile_klima_bg
+    type: RGB565
+    resize: 256x150  
+
+
+  - platform: file
+    file: "images/tile_bg_erdgeschoss.png"
+    id: bg_tile_bg_erdgeschoss
+    type: RGB565
+    resize: 256x150  
+
+  - platform: file
+    file: "images/tile_bg_terrasse.png"
+    id: bg_tile_bg_terrasse
+    type: RGB565
+    resize: 256x150  
+
+  - platform: file
+    file: "images/tile_bg_vor_dem_haus.png"
+    id: bg_tile_bg_vor_dem_haus
+    type: RGB565
+    resize: 256x150  
+
+  - platform: file
+    file: "images/kamera.png"
+    id: img_kamera
+    type: RGB565
+
+  - platform: file
+    file: "images/heizung_tag_128_150.png"
+    id: bg_heizung_tag
+    type: RGB565
+    resize: 128x150
+
+  - platform: file
+    file: "images/heizung_nacht_128_150.png"
+    id: bg_heizung_nacht
+    type: RGB565
+    resize: 128x150
+
+  - platform: file
+    file: "images/heizung_sommer_128_150.png"
+    id: bg_heizung_sommer
+    type: RGB565
+    resize: 128x150
+
+  - platform: file
+    file: "images/heizung_winter_128_150.png"
+    id: bg_heizung_winter
+    type: RGB565
+    resize: 128x150
+
+  - platform: file
+    file: "images/temp_heizung_zulauf.png"
+    id: bg_heizung_zl
+    type: RGB565
+    resize: 256x150
+
+  - platform: file
+    file: "images/temp_heizung_ruecklauf.png"
+    id: bg_heizung_rl
+    type: RGB565
+    resize: 256x150
+
+  - platform: file
+    file: "images/temp_boiler.png"
+    id: bg_heizung_boilertemp
+    type: RGB565
+    resize: 256x150
+
+  - platform: file
+    file: "images/temp_wasservorrat.png"
+    id: bg_heizung_wassertemp
+    type: RGB565
+    resize: 256x150
+
+  - platform: file
+    file: "images/heizung_brenner_an_128_150.png"
+    id: bg_heizung_brenner_an
+    type: RGB565
+    resize: 128x150
+
+  - platform: file
+    file: "images/heizung_brenner_aus_128_150.png"
+    id: bg_heizung_brenner_aus
+    type: RGB565
+    resize: 128x150
+
+  - platform: file
+    file: "images/heizung_zirkulation_an_128_150.png"
+    id: bg_heizung_zirkulation_an
+    type: RGB565
+    resize: 128x150
+
+  - platform: file
+    file: "images/heizung_zirkulation_aus_128_150.png"
+    id: bg_heizung_zirkulation_aus
+    type: RGB565
+    resize: 128x150
+
+  - platform: file
+    file: "images/heizung_automatisch.png"
+    id: bg_heizung_auto
+    type: RGB565
+    resize: 128x150
+
+  - platform: file
+    file: "images/heizung_manuell.png"
+    id: bg_heizung_man
+    type: RGB565
+    resize: 128x150
+
+  - platform: file
+    file: "images/heizung_systemdruck_wert.png"
+    id: bg_heizung_druck
+    type: RGB565
+    resize: 128x150
+ 
+  - platform: file
+    file: "images/heizkreis_aktiv.png"
+    id: bg_heizkreis_aktiv
+    type: RGB565
+    resize: 128x150
+
+  - platform: file
+    file: "images/heizkreis_inaktiv.png"
+    id: bg_heizkreis_inaktiv
+    type: RGB565
+    resize: 128x150
+
+  - platform: file
+    file: "images/heisswasser_aktiv.png"
+    id: bg_heisswasser_aktiv
+    type: RGB565
+    resize: 128x150
+
+  - platform: file
+    file: "images/heisswasser_inaktiv.png"
+    id: bg_heisswasser_inaktiv
+    type: RGB565
+    resize: 128x150
+    #heizung_systemdruck_wert.png
+
+  - platform: file
+    file: "images/solar_aktuell_mc.png"
+    id: bg_solar_aktuell_mc
+    type: RGB565
+    resize: 256x150
+
+  - platform: file
+    file: "images/solarleistung_ps.png"
+    id: bg_solarleistung_ps
+    type: RGB565
+    resize: 256x150
+
+  - platform: file
+    file: "images/solarertrag_heute.png"
+    id: bg_solarertrag_heute
+    type: RGB565
+    resize: 256x150
+
+  - platform: file
+    file: "images/netzbezug_aktuell.png"
+    id: bg_netzbezug_aktuell
+    type: RGB565
+    resize: 256x150
+
+  - platform: file
+    file: "images/netzbezug_summe.png"
+    id: bg_netzbezug_summe
+    type: RGB565
+    resize: 256x150
+
+  - platform: file
+    file: "images/netzeinspeisung.png"
+    id: bg_netzeinspeisung
+    type: RGB565
+    resize: 256x150
+
+  - platform: file
+    file: "images/einspeiselimit.png"
+    id: bg_einspeiselimit
+    type: RGB565
+    resize: 256x150
+
+  - platform: file
+    file: "images/akkuladestand.png"
+    id: bg_akkuladestand
+    type: RGB565
+    resize: 256x150
+
+  - platform: file
+    file: "images/hauseinspeisung.png"
+    id: bg_hauseinspeisung
+    type: RGB565
+    resize: 256x150
+
+  - platform: file
+    file: "images/hauseinspeisungslimit.png"
+    id: bg_hauseinspeisungslimit
+    type: RGB565
+    resize: 256x150
+
+  - platform: file
+    file: "images/stromverbrauch_gesamt.png"
+    id: bg_stromverbrauch_gesamt
+    type: RGB565
+    resize: 256x150
+
+
+  - platform: file
+    file: "images/akku_ladeleistung.png"
+    id: bg_akku_laden
+    type: RGB565
+    resize: 256x150
+
+
+  - platform: file
+    file: "images/akku_entladeleistung.png"
+    id: bg_akku_entladen
+    type: RGB565
+    resize: 256x150
+
+
+
+
+
+
+
+debug:
+  update_interval: 10s
+
+sensor:
+  - platform: debug
+    free:
+      name: "Heap frei"
+    block:
+      name: "Heap größter Block"
+    psram:
+      name: "PSRAM frei"
+    loop_time:
+      name: "Loop Time"
