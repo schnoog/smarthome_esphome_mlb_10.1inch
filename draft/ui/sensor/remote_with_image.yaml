@@ -1,30 +1,40 @@
+---
 # Remote sensor tile — displays a live value from a Home Assistant sensor entity.
 # Read-only: no action scripts, no detail page.
 #
 # vars:
-#   uid:          unique identifier
-#   entity_id:    HA sensor entity, e.g. "sensor.outdoor_temperature"
-#   attribute:    HA attribute to display instead of state (optional, default: state)
-#   row:          grid row
-#   column:       grid column
-#   text:         sensor name shown on tile
-#   icon:         icon glyph
-#   background:   image id used as tile background (optional, default: no image)
-#   bg_image_opa: opacity of the background image, 0%-100% (optional, default: 100%)
-#   bg_opa:       button background opacity. 0%-100% or TRANSP or COVER
-#                 (optional, default: COVER without background, TRANSP with background)
-#   unit:         unit string appended to value, e.g. "°C"  (optional, default "")
-#   precision:    decimal places                             (optional, default 1)
-#   row_span:     (default: 1)
-#   column_span:  (default: 1)
-#   page_id:      parent page (default: main_page)
-#   label_font:   font for the label
-#   sensor_font:  font for the sensor value
+#   uid:            unique identifier
+#   entity_id:      HA sensor entity, e.g. "sensor.outdoor_temperature"
+#   attribute:      HA attribute to display instead of state (optional, default: state)
+#   row:            grid row
+#   column:         grid column
+#   text:           sensor name shown on tile (optional, default: no label)
+#   icon:           icon glyph                (optional, default: no icon)
+#   icon_align:     alignment of the icon     (optional, default: top_left)
+#   label_align:    alignment of the label    (optional, default: bottom_left)
+#   value_align:    alignment of the value    (optional, default: top_right)
+#   background:     image id used as tile background (optional, default: no image)
+#   background_pos: image id while value >= 0 (optional, default: background)
+#   background_neg: image id while value <  0 (optional, default: background)
+#   abs_value:      "true" = show value without sign (optional, default: false)
+#   bg_image_opa:   opacity of the background image, 0%-100% (optional, default: 100%)
+#   bg_opa:         button background opacity. 0%-100% or TRANSP or COVER
+#                   (optional, default: COVER without background, TRANSP with background)
+#   unit:           unit string appended to value, e.g. "°C"  (optional, default "")
+#   precision:      decimal places                             (optional, default 1)
+#   row_span:       (default: 1)
+#   column_span:    (default: 1)
+#   page_id:        parent page (default: main_page)
+#   label_font:     font for the label
+#   sensor_font:    font for the sensor value
 
 globals:
   - id: ${uid}_current_value
     type: float
     initial_value: '0.0'
+  - id: ${uid}_bg_state          # -1 = not set yet, 0 = positive image, 1 = negative image
+    type: int
+    initial_value: '-1'
 
 lvgl:
   pages:
@@ -41,7 +51,7 @@ lvgl:
             widgets:
               - button:
                   id: button_${uid}
-                  bg_opa: ${ bg_opa | default('COVER' if (background | default('')) == '' else 'TRANSP') }
+                  bg_opa: ${ bg_opa | default('COVER' if ((background | default('')) ~ (background_pos | default('')) ~ (background_neg | default(''))) == '' else 'TRANSP') }
                   bg_image_opa: ${bg_image_opa | default("100%")}
                   clickable: false
                   widgets:
@@ -70,14 +80,13 @@ lvgl:
                         text_color: $label_on_color
                         text: "--"
 
-
-# ── Background image (only generated when "background" is given) ────────────
+# ── Initial background image (first of background / background_pos / background_neg) ──
 esphome:
   on_boot:
     - priority: -100
       then:
         - lambda: |-
-            ${ ('lv_obj_set_style_bg_image_src(id(button_' ~ uid ~ '), id(' ~ background ~ ')->get_lv_image_dsc(), LV_PART_MAIN);') if (background | default('')) != '' else '' }
+            ${ ('lv_obj_set_style_bg_image_src(id(button_' ~ uid ~ '), id(' ~ (background | default(background_pos | default(background_neg | default('')))) ~ ')->get_lv_image_dsc(), LV_PART_MAIN);') if (background | default(background_pos | default(background_neg | default('')))) != '' else '' }
 
 # ── Subscribe to the HA sensor state ─────────────────────────────────────────
 sensor:
@@ -93,11 +102,16 @@ sensor:
 script:
   - id: ${uid}_sync_state
     then:
+      # Switch background by sign (only generated when background_pos or background_neg is given)
+      - lambda: |-
+          ${ ('int st = id(' ~ uid ~ '_current_value) < 0 ? 1 : 0; if (st != id(' ~ uid ~ '_bg_state)) { id(' ~ uid ~ '_bg_state) = st; lv_obj_set_style_bg_image_src(id(button_' ~ uid ~ '), st ? ' ~ ((('id(' ~ (background_neg | default(background | default(''))) ~ ')->get_lv_image_dsc()') if (background_neg | default(background | default(''))) != '' else 'nullptr')) ~ ' : ' ~ ((('id(' ~ (background_pos | default(background | default(''))) ~ ')->get_lv_image_dsc()') if (background_pos | default(background | default(''))) != '' else 'nullptr')) ~ ', LV_PART_MAIN); }') if ((background_pos | default('')) != '' or (background_neg | default('')) != '') else '' }
       - lvgl.label.update:
           id: value_${uid}
           text: !lambda |-
+            float v = id(${uid}_current_value);
+            ${ 'v = fabsf(v);' if ((abs_value | default('false')) | string | lower) == 'true' else '' }
             char buf[32];
-            snprintf(buf, sizeof(buf), "%.*f", ${precision | default(1)}, id(${uid}_current_value));
+            snprintf(buf, sizeof(buf), "%.*f", ${precision | default(1)}, v);
             std::string s(buf);
             std::string unit = "${unit | default("")}";
             if (!unit.empty()) s += " " + unit;

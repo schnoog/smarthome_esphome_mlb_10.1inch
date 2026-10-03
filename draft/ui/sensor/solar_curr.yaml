@@ -1,17 +1,18 @@
 # Energy tile
 #
 # Shows current solar production, current grid power (import / feed-in)
-# and current house consumption (grid + solar).
+# and current house consumption (from a Home Assistant sensor).
 #
 # vars:
-#   uid:            unique identifier
-#   power_entity:   HA sensor for current grid power [W] (negative = feed-in)
-#   solar_entity:   HA sensor for current solar production [W]
-#   row:             grid row
-#   column:          grid column
-#   row_span:        (default: 1)
-#   column_span:     (default: 2)
-#   page_id:         parent page (default: main_page)
+#   uid:                      unique identifier
+#   power_entity:             HA sensor for current grid power [W] (negative = feed-in)
+#   solar_entity:             HA sensor for current solar production [W]
+#   power_consumption_total:  HA sensor for current total house consumption [W]
+#   row:                      grid row
+#   column:                   grid column
+#   row_span:                 (default: 1)
+#   column_span:              (default: 2)
+#   page_id:                  parent page (default: main_page)
 #
 # Optional:
 #   solar_icon:        solar icon
@@ -43,10 +44,10 @@ sensor:
               char buf[32];
 
               // Negative = feed-in
-              float value = abs(x);
+              float value = fabsf(x);
 
-              if (value >= 1000.0) {
-                snprintf(buf, sizeof(buf), "%.1f kW", value / 1000.0);
+              if (value >= 1000.0f) {
+                snprintf(buf, sizeof(buf), "%.1f kW", value / 1000.0f);
               } else {
                 snprintf(buf, sizeof(buf), "%.0f W", value);
               }
@@ -93,9 +94,6 @@ sensor:
               }
               return lv_color_hex(0xFF4444);
 
-        # Recalculate consumption
-        - component.update: ${uid}_consumption
-
   # ---------------------------------------------------------------------------
   # Current solar production
   # ---------------------------------------------------------------------------
@@ -114,31 +112,21 @@ sensor:
 
               char buf[32];
 
-              if (x >= 1000.0) {
-                snprintf(buf, sizeof(buf), "%.1f kW", x / 1000.0);
+              if (x >= 1000.0f) {
+                snprintf(buf, sizeof(buf), "%.1f kW", x / 1000.0f);
               } else {
                 snprintf(buf, sizeof(buf), "%.0f W", x);
               }
 
               return std::string(buf);
 
-        # Recalculate consumption
-        - component.update: ${uid}_consumption
-
   # ---------------------------------------------------------------------------
-  # Current house consumption (grid + solar)
+  # Current house consumption (from HA)
   # ---------------------------------------------------------------------------
-  - platform: template
+  - platform: homeassistant
     id: ${uid}_consumption
+    entity_id: ${power_consumption_total}
     internal: true
-    update_interval: never
-    lambda: |-
-      float p = id(${uid}_power).state;
-      float s = id(${uid}_solar).state;
-      if (isnan(p)) return NAN;
-      if (isnan(s)) s = 0.0f;          // solar often "unavailable" at night
-      float c = p + s;
-      return c < 0.0f ? 0.0f : c;      // catch timing offset between sensors
     on_value:
       then:
         - lvgl.label.update:
@@ -150,8 +138,8 @@ sensor:
 
               char buf[32];
 
-              if (x >= 1000.0) {
-                snprintf(buf, sizeof(buf), "%.1f kW", x / 1000.0);
+              if (x >= 1000.0f) {
+                snprintf(buf, sizeof(buf), "%.1f kW", x / 1000.0f);
               } else {
                 snprintf(buf, sizeof(buf), "%.0f W", x);
               }
@@ -175,8 +163,6 @@ lvgl:
 
         grid_cell_x_align: stretch
         grid_cell_y_align: stretch
-
-#        pad_all: 10
 
         widgets:
         - button:
@@ -242,8 +228,6 @@ lvgl:
                 text_font: $icon_font
                 text: ${consumption_icon | default("\U000F02DC")}
                 align: top_right
-
-
 
             - label:
                 id: ${uid}_consumption_value

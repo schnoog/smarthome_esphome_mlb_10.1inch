@@ -1,0 +1,64 @@
+---
+# HA calendar widget — own month grid + agenda list, prev/next month
+# (C++ view in ha_calendar.h, data from HA template sensor "sensor.display_kalender")
+#
+# Usage: only one instance per device (uses the global "ha_calendar").
+#
+# vars:
+#   uid:          unique identifier
+#   row:          grid row               (default: 0)
+#   column:       grid column            (default: 0)
+#   row_span:     rows to span           (default: 5)
+#   column_span:  columns to span        (default: 6)
+#   page_id:      parent page            (default: cal_page)
+#   entity_id:    HA sensor with attribute "events" (default: sensor.display_kalender)
+#   time_id:      id of your time component         (default: time_comp)
+#   font_small:   weekdays, agenda times            (default: nunito_20)
+#   font_mid:     day numbers, agenda titles        (default: nunito_20)
+#   font_big:     month title, arrows               (default: nunito_36)
+
+esphome:
+  includes:
+    - draft/ui/calendar/ha_calendar.h
+  on_boot:
+    - priority: -100
+      then:
+        - lambda: |-
+            ha_calendar.set_fonts(id(${font_small | default('nunito_20')})->get_lv_font(),
+                                  id(${font_mid | default('nunito_20')})->get_lv_font(),
+                                  id(${font_big | default('nunito_36')})->get_lv_font());
+            ha_calendar.build(id(${uid}_box));
+
+lvgl:
+  pages:
+    - id: !extend ${page_id | default("cal_page")}
+      widgets:
+        - obj:
+            id: ${uid}_box
+            grid_cell_row_pos: ${row | default(0)}
+            grid_cell_column_pos: ${column | default(0)}
+            grid_cell_row_span: ${row_span | default(5)}
+            grid_cell_column_span: ${column_span | default(6)}
+            grid_cell_x_align: stretch
+            grid_cell_y_align: stretch
+            bg_opa: TRANSP
+            border_width: 0
+            scrollable: false
+
+# ── Events from Home Assistant ──────────────────────────────────────────────
+text_sensor:
+  - platform: homeassistant
+    id: ${uid}_events
+    entity_id: ${entity_id | default("sensor.display_kalender")}
+    attribute: events
+    internal: true
+    on_value:
+      - lambda: 'ha_calendar.set_events(x);'
+
+# ── Keep "today" up to date ─────────────────────────────────────────────────
+interval:
+  - interval: 10s
+    then:
+      - lambda: |-
+          auto now = id(${time_id | default('time_comp')}).now();
+          if (now.is_valid()) ha_calendar.set_today(now.year, now.month, now.day_of_month);

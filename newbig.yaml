@@ -207,6 +207,7 @@ packages:
 #             |___/        
 # 4x8
 # ##PAGE1
+ #Content
   flip_combi_main: !include
     file: draft/ui/clock/flipclock.yaml
     vars:
@@ -333,6 +334,7 @@ packages:
       uid: temp_soltest
       power_entity: sensor.stromzahler_momentanwirkleistung
       solar_entity: sensor.hm_power      
+      power_consumption_total: sensor.keller_stromzahler_momentaner_gesamtverbrauch
       row: 2
       column: 0
       column_span: 2
@@ -354,12 +356,7 @@ packages:
       column: 2
       column_span: 2
       page_id: "main_page"
-
-
-
-
-
-
+ #Nav
   page_button_main_media: !include
     file: draft/ui/page/page_button_image.yaml
     vars:
@@ -396,7 +393,7 @@ packages:
       row: 3
       column: 4
       column_span: 2      
-      text: "Solar"
+      text: "Strom"
       icon: $mdi_page_next
       page_id: "main_page"
       click_page: "solar_page"
@@ -415,7 +412,6 @@ packages:
       page_id: "main_page"
       click_page: "cal_page"
 
-
 #  ____                  ____                          _ _       
 # |  _ \ __ _  __ _  ___|___ \      _ __ ___   ___  __| (_) __ _ 
 # | |_) / _` |/ _` |/ _ \ __) |    | '_ ` _ \ / _ \/ _` | |/ _` |
@@ -424,6 +420,7 @@ packages:
 #             |___/                                              
      
 # ##PAGE2
+ #PageContent
   flip_combi_media: !include
     file: draft/ui/clock/flipclock.yaml
     vars:
@@ -607,7 +604,7 @@ packages:
       page_id: "media_page"
       background: bg_avr_aux
 
- # Spalte 5 (6)
+  # Spalte 5 (6)
 
   media_tv_pwr_btn: !include
     file: esphome-modular-lvgl-buttons/ui/button/remote_image_button.yaml
@@ -673,9 +670,7 @@ packages:
       icon: $mdi_music
       page_id: "media_page"
       background: bg_avr_v_plus
-
-
-
+ # Nav
   page_button_media_main: !include
     file: draft/ui/page/page_button_image.yaml
     vars:
@@ -711,7 +706,7 @@ packages:
       row: 3
       column: 4
       column_span: 2      
-      text: "Solar"
+      text: "Strom"
       icon: $mdi_page_next
       page_id: "media_page"
       click_page: "solar_page"
@@ -738,6 +733,7 @@ packages:
 #             |___/                                              |___/ 
 
 # ##PAGE3
+ #PageContent
   flip_combi_heating: !include
     file: draft/ui/clock/flipclock.yaml
     vars:
@@ -793,7 +789,7 @@ packages:
       image_false: bg_heizung_winter
       page_id: "heating_page"
 
-# Remote — Home Assistant sensor entity
+  # Remote — Home Assistant sensor entity
   outdoor_temp_heating_btn: !include
     file: esphome-modular-lvgl-buttons/ui/sensor/remote.yaml
     vars:
@@ -968,12 +964,7 @@ packages:
       unit: "°C"
       precision: 1
       sensor_font: "nunito_36"
-
-
-
-
-
-
+ #NAV
   page_button_heating_main: !include
     file: draft/ui/page/page_button_image.yaml
     vars:
@@ -1009,7 +1000,7 @@ packages:
       row: 3
       column: 4
       column_span: 2      
-      text: "Solar"
+      text: "Strom"
       icon: $mdi_page_next
       page_id: "heating_page"
       click_page: "solar_page"
@@ -1049,7 +1040,172 @@ packages:
       show_date: false
       page_id: "solar_page"  
 
+    #/home/volker/Development/smarthome/systems/esphome/mlb/draft/ui/sensor/remote_with_image.yaml
+  power_solar_currpower_btn: !include
+    file: draft/ui/sensor/remote_with_image.yaml
+    vars:
+      uid: power_solar_currpower
+      entity_id: "sensor.hm_power"
+      row: 0
+      column: 0
+      column_span: 2
+      background: bg_solar_aktuell_mc
+    #  text: "Solar aktuell"
+    #  icon: $mdi_thermometer
+      unit: "W"
+      precision: 0
+      sensor_font: "nunito_36"
+      value_align: bottom_right
+      label_align: right_mid
+      icon_align: bottom_mid
+      page_id: "solar_page"
 
+  power_solar_currpspower_btn: !include
+    file: draft/ui/sensor/remote_with_image.yaml
+    vars:
+      uid: power_solar_currpspower
+      entity_id: "sensor.solarbank_2_e1600_ac_solarleistung"
+      row: 0
+      column: 2
+      column_span: 2
+      background: bg_solarleistung_ps
+    #  text: "Solar aktuell"
+    #  icon: $mdi_thermometer
+      unit: "W"
+      precision: 0
+      sensor_font: "nunito_36"
+      value_align: bottom_right
+      label_align: right_mid
+      icon_align: bottom_mid
+      page_id: "solar_page"
+
+
+  power_hausabgabe_btn: !include
+    file: draft/ui/sensor/remote_with_image.yaml
+    vars:
+      uid: power_hausabgabe
+      entity_id: "sensor.solarbank_2_e1600_ac_ac_hausabgabe"
+      row: 1
+      column: 0
+      column_span: 2
+      background: bg_hauseinspeisung
+    #  text: "Solar aktuell"
+    #  icon: $mdi_thermometer
+      unit: "W"
+      precision: 0
+      sensor_font: "nunito_36"
+      value_align: bottom_right
+      label_align: right_mid
+      icon_align: bottom_mid
+      page_id: "solar_page"
+
+  power_hausabgabelimit_btn: !include
+    file: draft/ui/sensor/remote_with_image.yaml
+    vars:
+      uid: power_ehausabgabelimit
+      entity_id: "number.solarbank_2_e1600_ac_system_lastvorgabe"
+      row: 1
+      column: 2
+      column_span: 2
+      background: bg_hauseinspeisungslimit
+    #  text: "Solar aktuell"
+    #  icon: $mdi_thermometer
+      unit: "W"
+      precision: 0
+      sensor_font: "nunito_36"
+      value_align: bottom_right
+      label_align: right_mid
+      icon_align: bottom_mid
+      page_id: "solar_page"
+
+  power_akkustand_btn: !include
+    file: draft/ui/sensor/remote_with_image.yaml
+    vars:
+      uid: power_akkustand
+      entity_id: "sensor.solarbank_2_e1600_ac_ladestand"
+      row: 1
+      column: 4
+      column_span: 2
+      background: bg_akkuladestand
+    #  text: "Solar aktuell"
+    #  icon: $mdi_thermometer
+      unit: "%"
+      precision: 0
+      sensor_font: "nunito_36"
+      value_align: bottom_right
+      label_align: right_mid
+      icon_align: bottom_mid
+      page_id: "solar_page"
+
+
+
+  power_akkunet_btn: !include
+    file: draft/ui/sensor/remote_with_image.yaml
+    vars:
+      uid: power_akkunet
+      entity_id: "sensor.solarbank_2_e1600_ac_akkuleistung"
+      row: 1
+      column: 6
+      column_span: 2
+      background: bg_akku_laden
+      background_pos: bg_akku_laden
+      background_neg: bg_akku_entladen
+    #  text: "Solar aktuell"
+    #  icon: $mdi_thermometer
+      unit: "W"
+      precision: 0
+      sensor_font: "nunito_36"
+      value_align: bottom_right
+      label_align: right_mid
+      icon_align: bottom_mid
+      page_id: "solar_page"
+
+
+
+
+  power_einspeisung_btn: !include
+    file: draft/ui/sensor/remote_with_image.yaml
+    vars:
+      uid: power_einspeisung
+      entity_id: "sensor.stromzahler_momentanwirkleistung"
+      row: 2
+      column: 0
+      column_span: 2
+      background: bg_netzbezug_aktuell
+      background_pos: bg_netzbezug_aktuell
+      background_neg: bg_netzeinspeisung
+    #  text: "Solar aktuell"
+    #  icon: $mdi_thermometer
+      unit: "W"
+      precision: 0
+      sensor_font: "nunito_36"
+      value_align: bottom_right
+      label_align: right_mid
+      icon_align: bottom_mid
+      page_id: "solar_page"
+
+
+  power_aktverbrauch_btn: !include
+    file: draft/ui/sensor/remote_with_image.yaml
+    vars:
+      uid: power_aktverbrauch
+      entity_id: "sensor.keller_stromzahler_momentaner_gesamtverbrauch"
+      row: 2
+      column: 2
+      column_span: 2
+      background: bg_stromverbrauch_gesamt
+    #  text: "Solar aktuell"
+    #  icon: $mdi_thermometer
+      unit: "W"
+      precision: 0
+      sensor_font: "nunito_36"
+      value_align: bottom_right
+      label_align: right_mid
+      icon_align: bottom_mid
+      page_id: "solar_page"
+
+
+ # NAV
   page_button_solar_main: !include
     file: draft/ui/page/page_button_image.yaml
     vars:
@@ -1063,6 +1219,48 @@ packages:
       page_id: "solar_page"
       click_page: "main_page"
 
+  page_button_sol_media: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_media     
+      uid: page_button_sol_media
+      row: 3
+      column: 2
+      column_span: 2      
+      text: "Media"
+      icon: $mdi_page_next
+      page_id: "solar_page"
+      click_page: "media_page"
+
+
+  page_button_sol_heating: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_heating     
+      uid: page_button_sol_heating
+      row: 3
+      column: 4
+      column_span: 2      
+      text: "Heizung"
+      icon: $mdi_page_next
+      page_id: "solar_page"
+      click_page: "heating_page"
+
+
+  page_button_sol_cal: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_cal     
+      uid: page_button_sol_cal
+      row: 3
+      column: 6
+      column_span: 2      
+      text: "Kalender"
+      icon: $mdi_page_next
+      page_id: "solar_page"
+      click_page: "cal_page"
+
+
 
 #  ____                  ____                 _ 
 # |  _ \ __ _  __ _  ___| ___|       ___ __ _| |
@@ -1072,6 +1270,11 @@ packages:
 #             |___/                             
 
 # ##PAGE5
+ #PageContent
+
+
+
+
 
   flip_combi_cal: !include
     file: draft/ui/clock/flipclock.yaml
@@ -1086,19 +1289,64 @@ packages:
       show_date: false
       page_id: "cal_page"  
 
-
+ #Nav
   page_button_cal_main: !include
     file: draft/ui/page/page_button_image.yaml
     vars:
       background: bg_home  
       uid: page_button_cal_main
-      row: 3
+      row: 5
       column: 0
       column_span: 2      
       text: ""
       icon: $mdi_home
       page_id: "cal_page"
       click_page: "main_page"
+
+
+
+
+  page_button_cal_media: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_media     
+      uid: page_button_cal_media
+      row: 5
+      column: 2
+      column_span: 2      
+      text: "Media"
+      icon: $mdi_page_next
+      page_id: "cal_page"
+      click_page: "media_page"
+     
+
+  page_button_cal_heating: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_heating     
+      uid: page_button_cal_heating
+      row: 5
+      column: 4
+      column_span: 2      
+      text: "Heizung"
+      icon: $mdi_page_next
+      page_id: "cal_page"
+      click_page: "heating_page"
+
+
+  page_button_cal_solar: !include
+    file: draft/ui/page/page_button_image.yaml
+    vars:
+      background: bg_solar     
+      uid: page_button_cal_solar
+      row: 5
+      column: 6
+      column_span: 2      
+      text: "Strom"
+      icon: $mdi_page_next
+      page_id: "cal_page"
+      click_page: "solar_page"
+
 
 
 
@@ -1256,7 +1504,7 @@ lvgl:
 
 
     - id: cal_page
-      layout: 4x8
+      layout: 6x8
       styles: page_style
       <<: !include esphome-modular-lvgl-buttons/common/swipe_navigation.yaml      
 
@@ -1547,137 +1795,199 @@ image:
     id: bg_heizung_tag
     type: RGB565
     resize: 128x150
-    transparency: alpha_channel
 
   - platform: file
     file: "images/heizung_nacht_128_150.png"
     id: bg_heizung_nacht
     type: RGB565
     resize: 128x150
-    transparency: alpha_channel
 
   - platform: file
     file: "images/heizung_sommer_128_150.png"
     id: bg_heizung_sommer
     type: RGB565
     resize: 128x150
-    transparency: alpha_channel
 
   - platform: file
     file: "images/heizung_winter_128_150.png"
     id: bg_heizung_winter
     type: RGB565
     resize: 128x150
-    transparency: alpha_channel
 
   - platform: file
     file: "images/temp_heizung_zulauf.png"
     id: bg_heizung_zl
     type: RGB565
     resize: 256x150
-    transparency: alpha_channel
 
   - platform: file
     file: "images/temp_heizung_ruecklauf.png"
     id: bg_heizung_rl
     type: RGB565
     resize: 256x150
-    transparency: alpha_channel
 
   - platform: file
     file: "images/temp_boiler.png"
     id: bg_heizung_boilertemp
     type: RGB565
     resize: 256x150
-    transparency: alpha_channel
 
   - platform: file
     file: "images/temp_wasservorrat.png"
     id: bg_heizung_wassertemp
     type: RGB565
     resize: 256x150
-    transparency: alpha_channel
-
-
 
   - platform: file
     file: "images/heizung_brenner_an_128_150.png"
     id: bg_heizung_brenner_an
     type: RGB565
     resize: 128x150
-    transparency: alpha_channel
 
   - platform: file
     file: "images/heizung_brenner_aus_128_150.png"
     id: bg_heizung_brenner_aus
     type: RGB565
     resize: 128x150
-    transparency: alpha_channel
 
   - platform: file
     file: "images/heizung_zirkulation_an_128_150.png"
     id: bg_heizung_zirkulation_an
     type: RGB565
     resize: 128x150
-    transparency: alpha_channel
 
   - platform: file
     file: "images/heizung_zirkulation_aus_128_150.png"
     id: bg_heizung_zirkulation_aus
     type: RGB565
     resize: 128x150
-    transparency: alpha_channel
-
 
   - platform: file
     file: "images/heizung_automatisch.png"
     id: bg_heizung_auto
     type: RGB565
     resize: 128x150
-    transparency: alpha_channel
 
   - platform: file
     file: "images/heizung_manuell.png"
     id: bg_heizung_man
     type: RGB565
     resize: 128x150
-    transparency: alpha_channel
 
   - platform: file
     file: "images/heizung_systemdruck_wert.png"
     id: bg_heizung_druck
     type: RGB565
     resize: 128x150
-    transparency: alpha_channel
  
   - platform: file
     file: "images/heizkreis_aktiv.png"
     id: bg_heizkreis_aktiv
     type: RGB565
     resize: 128x150
-    transparency: alpha_channel
 
   - platform: file
     file: "images/heizkreis_inaktiv.png"
     id: bg_heizkreis_inaktiv
     type: RGB565
     resize: 128x150
-    transparency: alpha_channel
 
   - platform: file
     file: "images/heisswasser_aktiv.png"
     id: bg_heisswasser_aktiv
     type: RGB565
     resize: 128x150
-    transparency: alpha_channel
 
   - platform: file
     file: "images/heisswasser_inaktiv.png"
     id: bg_heisswasser_inaktiv
     type: RGB565
     resize: 128x150
-    transparency: alpha_channel
     #heizung_systemdruck_wert.png
+
+  - platform: file
+    file: "images/solar_aktuell_mc.png"
+    id: bg_solar_aktuell_mc
+    type: RGB565
+    resize: 256x150
+
+  - platform: file
+    file: "images/solarleistung_ps.png"
+    id: bg_solarleistung_ps
+    type: RGB565
+    resize: 256x150
+
+  - platform: file
+    file: "images/solarertrag_heute.png"
+    id: bg_solarertrag_heute
+    type: RGB565
+    resize: 256x150
+
+  - platform: file
+    file: "images/netzbezug_aktuell.png"
+    id: bg_netzbezug_aktuell
+    type: RGB565
+    resize: 256x150
+
+  - platform: file
+    file: "images/netzbezug_summe.png"
+    id: bg_netzbezug_summe
+    type: RGB565
+    resize: 256x150
+
+  - platform: file
+    file: "images/netzeinspeisung.png"
+    id: bg_netzeinspeisung
+    type: RGB565
+    resize: 256x150
+
+  - platform: file
+    file: "images/einspeiselimit.png"
+    id: bg_einspeiselimit
+    type: RGB565
+    resize: 256x150
+
+  - platform: file
+    file: "images/akkuladestand.png"
+    id: bg_akkuladestand
+    type: RGB565
+    resize: 256x150
+
+  - platform: file
+    file: "images/hauseinspeisung.png"
+    id: bg_hauseinspeisung
+    type: RGB565
+    resize: 256x150
+
+  - platform: file
+    file: "images/hauseinspeisungslimit.png"
+    id: bg_hauseinspeisungslimit
+    type: RGB565
+    resize: 256x150
+
+  - platform: file
+    file: "images/stromverbrauch_gesamt.png"
+    id: bg_stromverbrauch_gesamt
+    type: RGB565
+    resize: 256x150
+
+
+  - platform: file
+    file: "images/akku_ladeleistung.png"
+    id: bg_akku_laden
+    type: RGB565
+    resize: 256x150
+
+
+  - platform: file
+    file: "images/akku_entladeleistung.png"
+    id: bg_akku_entladen
+    type: RGB565
+    resize: 256x150
+
+
+
+
 
 
 
