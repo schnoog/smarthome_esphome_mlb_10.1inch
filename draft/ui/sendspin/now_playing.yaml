@@ -1,0 +1,182 @@
+# =====================================================================
+#  ui/sendspin/now_playing.yaml — Now-Playing-Kachel für Sendspin
+#
+#  Zeigt Titel, Artist, Album und (falls vorhanden) das Album-Cover des
+#  Sendspin-Streams auf diesem Gerät. Feature-Modul (wie ui/weather):
+#  nur lokal, da Sendspin auf dem Display selbst läuft.
+#
+#  Voraussetzungen:
+#    - sendspin:-Hub ist im Gerät bereits konfiguriert
+#    - ESPHome >= 2026.8 (sendspin image platform)
+#    - Glyph ${icon} im MDI-Font des Geräts deklariert
+#
+#  Variablen:
+#    uid          ✅  eindeutiger Präfix für alle IDs
+#    row          ✅  Grid-Zeile
+#    column       ✅  Grid-Spalte
+#    icon         ✅  MDI-Glyph als Platzhalter ohne Cover, z.B. $mdi_music
+#    row_span     —   Default 1
+#    column_span  —   Default 1  (empfohlen: >= 2, Cover + Text nebeneinander)
+#    page_id      —   Default main_page
+#    cover_size   —   Kantenlänge Cover in px, Default 200
+#                     (Sendspin liefert fest skalierte Bilder, daher px)
+#    idle_text    —   Text ohne Wiedergabe, Default "Keine Wiedergabe"
+#    title_font   —   Default nunito_36
+#    artist_font  —   Default $text_font
+#    album_font   —   Default nunito_18
+#
+#  Beispiel:
+#    now_playing: !include
+#      file: esphome-modular-lvgl-buttons/ui/sendspin/now_playing.yaml
+#      vars:
+#        uid: np
+#        row: 0
+#        column: 0
+#        column_span: 2
+#        icon: $mdi_music
+#
+#  Bereitgestellte IDs (für eigene Erweiterungen):
+#    ${uid}_tile, ${uid}_cover, ${uid}_placeholder,
+#    ${uid}_title, ${uid}_artist, ${uid}_album,
+#    ${uid}_title_sensor, ${uid}_artist_sensor, ${uid}_album_sensor,
+#    ${uid}_album_slot (Image-Slot), ${uid}_album_art (Image)
+# =====================================================================
+
+text_sensor:
+  - platform: sendspin
+    id: ${uid}_title_sensor
+    type: title
+    internal: true
+    on_value:
+      - lvgl.label.update:
+          id: ${uid}_title
+          text: !lambda |-
+            if (x.empty()) return std::string("${idle_text | default('Keine Wiedergabe')}");
+            return x;
+
+  - platform: sendspin
+    id: ${uid}_artist_sensor
+    type: artist
+    internal: true
+    on_value:
+      - lvgl.label.update:
+          id: ${uid}_artist
+          text: !lambda return x;
+
+  - platform: sendspin
+    id: ${uid}_album_sensor
+    type: album
+    internal: true
+    on_value:
+      - lvgl.label.update:
+          id: ${uid}_album
+          text: !lambda return x;
+
+image:
+  - platform: sendspin
+    id: ${uid}_album_slot
+    source: album
+    format: JPEG
+    type: RGB565
+    resize: ${cover_size | default(200)}x${cover_size | default(200)}
+    current_image:
+      id: ${uid}_album_art
+    # Widget bei jedem neuen Cover neu auf das Bild zeigen lassen
+    on_image_display:
+      - lvgl.image.update:
+          id: ${uid}_cover
+          src: ${uid}_album_art
+      - lvgl.widget.show: ${uid}_cover
+      - lvgl.widget.hide: ${uid}_placeholder
+    on_image_clear:
+      - lvgl.widget.hide: ${uid}_cover
+      - lvgl.widget.show: ${uid}_placeholder
+    on_image_error:
+      - logger.log:
+          level: WARN
+          format: "[${uid}] Sendspin-Cover konnte nicht dekodiert werden"
+
+lvgl:
+  pages:
+    - id: !extend ${page_id | default("main_page")}
+      widgets:
+        - obj:
+            id: ${uid}_tile
+            grid_cell_row_pos: ${row}
+            grid_cell_column_pos: ${column}
+            grid_cell_row_span: ${row_span | default(1)}
+            grid_cell_column_span: ${column_span | default(1)}
+            grid_cell_x_align: STRETCH
+            grid_cell_y_align: STRETCH
+            bg_color: $button_off_color
+            bg_opa: COVER
+            border_width: 0
+            pad_all: 12
+            scrollable: false
+            layout:
+              type: flex
+              flex_flow: ROW
+              flex_align_cross: CENTER
+              pad_column: 16
+            widgets:
+              # ---------- Cover / Platzhalter ----------
+              - obj:
+                  id: ${uid}_cover_box
+                  width: ${cover_size | default(200)}
+                  height: ${cover_size | default(200)}
+                  bg_color: $button_off_color
+                  bg_opa: COVER
+                  radius: 10
+                  clip_corner: true
+                  border_width: 1
+                  border_color: $label_off_color
+                  border_opa: 30%
+                  pad_all: 0
+                  scrollable: false
+                  widgets:
+                    - label:
+                        id: ${uid}_placeholder
+                        align: CENTER
+                        text: ${icon}
+                        text_font: $icon_font
+                        text_color: $icon_off_color
+                    - image:
+                        id: ${uid}_cover
+                        align: CENTER
+                        src: ${uid}_album_art
+                        hidden: true
+
+              # ---------- Texte ----------
+              - obj:
+                  flex_grow: 1
+                  height: SIZE_CONTENT
+                  bg_opa: TRANSP
+                  border_width: 0
+                  pad_all: 0
+                  scrollable: false
+                  layout:
+                    type: flex
+                    flex_flow: COLUMN
+                    pad_row: 6
+                  widgets:
+                    - label:
+                        id: ${uid}_title
+                        width: 100%
+                        text: "${idle_text | default('Keine Wiedergabe')}"
+                        long_mode: SCROLL_CIRCULAR
+                        text_font: ${title_font | default("nunito_36")}
+                        text_color: $label_on_color
+                    - label:
+                        id: ${uid}_artist
+                        width: 100%
+                        text: ""
+                        long_mode: DOT
+                        text_font: ${artist_font | default(text_font)}
+                        text_color: $button_text_color
+                    - label:
+                        id: ${uid}_album
+                        width: 100%
+                        text: ""
+                        long_mode: DOT
+                        text_font: ${album_font | default("nunito_18")}
+                        text_color: $label_off_color

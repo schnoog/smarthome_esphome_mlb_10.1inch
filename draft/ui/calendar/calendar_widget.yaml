@@ -1,12 +1,22 @@
 # =====================================================================
 #  Kalender-Widget (buttonmatrix) – füllt seinen Eltern-Container komplett
 #
-#  Einbindung als eigene Seite (Layout der Seite egal, flex oder keins):
+#  Einbindung als eigene Seite:
 #
 #    - id: cal_page
 #      styles: page_style
+#      on_unload:                       # beim Verlassen zurück auf aktuellen Monat
+#        - homeassistant.action:
+#            action: input_number.set_value
+#            data:
+#              entity_id: input_number.display_kalender_offset
+#              value: "0"
 #      widgets:
 #        - !include ui/calendar/calendar_widget.yaml
+#
+#  Voraussetzung für die Monats-Buttons: In HA unter
+#  Einstellungen > Geräte > ESPHome > (Gerät) > Optionen
+#  "Gerät darf Home Assistant-Aktionen ausführen" aktivieren.
 #
 #  Fonts: Montserrat-Builtins haben keine Umlaute. Für "März" und
 #  Terminnamen einen eigenen Font mit glyphsets (z.B. GF_Latin_Core)
@@ -39,12 +49,71 @@ obj:
           flex_flow: COLUMN
           pad_row: 6
         widgets:
-          - label:
-              id: cal_title_label
-              text: "Kalender"
-              text_font: montserrat_28
-              text_color: 0xFFFFFF
-              pad_left: 6
+          # Kopfzeile:  <   Oktober 2026   >
+          - obj:
+              width: 100%
+              height: SIZE_CONTENT
+              bg_opa: TRANSP
+              border_width: 0
+              pad_all: 0
+              scrollable: false
+              layout:
+                type: flex
+                flex_flow: ROW
+                flex_align_cross: CENTER
+                pad_column: 8
+              widgets:
+                - button:
+                    id: cal_prev_btn
+                    width: 56
+                    height: 56
+                    radius: 28
+                    bg_color: 0x2C2C2E
+                    shadow_width: 0
+                    text_color: 0xFFFFFF
+                    text_font: montserrat_24
+                    text: "\uF053"            # LV_SYMBOL_LEFT
+                    pressed:
+                      bg_color: 0x48484A
+                    on_click:
+                      - homeassistant.action:
+                          action: input_number.decrement
+                          data:
+                            entity_id: input_number.display_kalender_offset
+
+                # Tippen auf den Monatsnamen springt zurück zum aktuellen Monat
+                - label:
+                    id: cal_title_label
+                    flex_grow: 1
+                    text: "Kalender"
+                    text_font: montserrat_28
+                    text_color: 0xFFFFFF
+                    text_align: CENTER
+                    clickable: true
+                    on_click:
+                      - homeassistant.action:
+                          action: input_number.set_value
+                          data:
+                            entity_id: input_number.display_kalender_offset
+                            value: "0"
+
+                - button:
+                    id: cal_next_btn
+                    width: 56
+                    height: 56
+                    radius: 28
+                    bg_color: 0x2C2C2E
+                    shadow_width: 0
+                    text_color: 0xFFFFFF
+                    text_font: montserrat_24
+                    text: "\uF054"            # LV_SYMBOL_RIGHT
+                    pressed:
+                      bg_color: 0x48484A
+                    on_click:
+                      - homeassistant.action:
+                          action: input_number.increment
+                          data:
+                            entity_id: input_number.display_kalender_offset
 
           # Wochentags-Kopfzeile
           - obj:
@@ -108,7 +177,7 @@ obj:
                     id(cal_sel_day) = day;
                 - script.execute: cal_show_day
 
-    # ---------------- rechte Seite: Termine des Tages ----------------
+    # ---------------- rechte Seite: Termine + Zurück-Button ----------------
     - obj:
         flex_grow: 1
         height: 100%
@@ -116,8 +185,7 @@ obj:
         radius: 12
         border_width: 0
         pad_all: 12
-        scrollable: true
-        scroll_dir: VER
+        scrollable: false
         layout:
           type: flex
           flex_flow: COLUMN
@@ -128,11 +196,50 @@ obj:
               text: "Termine"
               text_font: montserrat_24
               text_color: 0xFFB300
-          - label:
-              id: cal_event_list
+
+          # scrollbare Terminliste
+          - obj:
               width: 100%
-              long_mode: WRAP
-              text: ""
-              text_font: montserrat_20
-              text_color: 0xE5E5EA
-              text_line_space: 8
+              flex_grow: 1
+              bg_opa: TRANSP
+              border_width: 0
+              pad_all: 0
+              scroll_dir: VER
+              widgets:
+                - label:
+                    id: cal_event_list
+                    width: 100%
+                    long_mode: WRAP
+                    text: ""
+                    text_font: montserrat_20
+                    text_color: 0xE5E5EA
+                    text_line_space: 8
+
+          # Zurück zur Startseite (unten rechts)
+          - obj:
+              width: 100%
+              height: SIZE_CONTENT
+              bg_opa: TRANSP
+              border_width: 0
+              pad_all: 0
+              scrollable: false
+              layout:
+                type: flex
+                flex_flow: ROW
+                flex_align_main: END
+              widgets:
+                - button:
+                    id: cal_back_btn
+                    height: 56
+                    pad_left: 20
+                    pad_right: 20
+                    radius: 12
+                    bg_color: 0x3A3A3C
+                    shadow_width: 0
+                    text_color: 0xFFFFFF
+                    text_font: montserrat_20
+                    text: "\uF015  Start"     # LV_SYMBOL_HOME
+                    pressed:
+                      bg_color: 0x48484A
+                    on_click:
+                      - lvgl.page.show: main_page

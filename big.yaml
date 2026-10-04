@@ -28,8 +28,8 @@ substitutions:
 
 esphome:
   name: "homedisplay"
-  friendly_name: "Advance-P4-10.1-inch"
-  comment: "Advance-P4-10.1-inch as Waveshare ESP32-P4 WiFi6 Touch LCD 7B 1024px X 600px Smart Screen"
+  friendly_name: "MyBigDisplay"
+  comment: "MyBigDisplay"
   platformio_options:
     build_flags:
       - "-D LV_USE_CHART=1"
@@ -1272,78 +1272,13 @@ packages:
 
 
 
-
-
-  flip_combi_cal: !include
-    file: draft/ui/clock/flipclock.yaml
+  mycalendar: !include
+    file: draft/ui/calendar/calendar_backend.yaml
     vars:
-      uid: flip_combi_cal
+      cal_sensor: sensor.display_kalender
+      page_id: "cal_page" 
       row: 0
-      column: 6
-      row_span: 1
-      column_span: 2
-      height: 100%
-      font_size: 54
-      show_date: false
-      page_id: "cal_page"  
-
- #Nav
-  page_button_cal_main: !include
-    file: draft/ui/page/page_button_image.yaml
-    vars:
-      background: bg_home  
-      uid: page_button_cal_main
-      row: 5
       column: 0
-      column_span: 2      
-      text: ""
-      icon: $mdi_home
-      page_id: "cal_page"
-      click_page: "main_page"
-
-
-
-
-  page_button_cal_media: !include
-    file: draft/ui/page/page_button_image.yaml
-    vars:
-      background: bg_media     
-      uid: page_button_cal_media
-      row: 5
-      column: 2
-      column_span: 2      
-      text: "Media"
-      icon: $mdi_page_next
-      page_id: "cal_page"
-      click_page: "media_page"
-     
-
-  page_button_cal_heating: !include
-    file: draft/ui/page/page_button_image.yaml
-    vars:
-      background: bg_heating     
-      uid: page_button_cal_heating
-      row: 5
-      column: 4
-      column_span: 2      
-      text: "Heizung"
-      icon: $mdi_page_next
-      page_id: "cal_page"
-      click_page: "heating_page"
-
-
-  page_button_cal_solar: !include
-    file: draft/ui/page/page_button_image.yaml
-    vars:
-      background: bg_solar     
-      uid: page_button_cal_solar
-      row: 5
-      column: 6
-      column_span: 2      
-      text: "Strom"
-      icon: $mdi_page_next
-      page_id: "cal_page"
-      click_page: "solar_page"
 
 
 
@@ -1427,9 +1362,7 @@ switch:
 
   # Microphone routing switch (R/L channel selection on the board)
 
-###sendspin:
-###  id: sendspin_hub
-###  task_stack_in_psram: false
+
 
 media_source:
   - platform: audio_http
@@ -1438,13 +1371,10 @@ media_source:
   - platform: audio_http
     id: http_media_source
     buffer_size: 500000
-###  - platform: sendspin
-###    id: sendspin_media_source
+
 
 
 media_player:
-###  - platform: sendspin
-###    id: sendspin_group_media_player
   - platform: speaker_source
     name: "Media Player"
     id: my_media_player
@@ -1469,7 +1399,9 @@ media_player:
 
 
 
-
+sendspin:
+  id: sendspin_hub
+  task_stack_in_psram: true
 
 
 
@@ -1502,9 +1434,11 @@ lvgl:
 
 
     - id: cal_page
-      layout: 6x8
       styles: page_style
       <<: !include esphome-modular-lvgl-buttons/common/swipe_navigation.yaml      
+      widgets:
+        - !include
+          file: draft/ui/calendar/calendar_widget.yaml   # Pfad relativ zur Hauptdatei anpassen
 
     - id: cam_page
       layout: 4x6 

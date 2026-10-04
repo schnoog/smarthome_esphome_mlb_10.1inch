@@ -24,6 +24,9 @@ globals:
   - id: cal_sel_day         # aktuell gewählter Tag (Terminliste rechts)
     type: int
     initial_value: "0"
+  - id: cal_month_key       # yyyymm des angezeigten Monats
+    type: int
+    initial_value: "0"
 
 text_sensor:
   - platform: homeassistant
@@ -73,8 +76,8 @@ script:
           static char labels[42][16];
           static const char *btn_map[42 + 5 + 1];
 
-          int offset = -1, dim = 0, today = 0;
-          if (sscanf(id(cal_grid).state.c_str(), "%d;%d;%d", &offset, &dim, &today) != 3 ||
+          int offset = -1, dim = 0, today = 0, key = 0;
+          if (sscanf(id(cal_grid).state.c_str(), "%d;%d;%d;%d", &offset, &dim, &today, &key) != 4 ||
               offset < 0 || offset > 6 || dim < 28 || dim > 31) {
             return;  // noch keine gültigen Daten aus HA
           }
@@ -125,9 +128,12 @@ script:
 
           id(cal_offset) = offset;
           id(cal_dim) = dim;
-          if (today != id(cal_today) || id(cal_sel_day) < 1 || id(cal_sel_day) > dim) {
+          // Monats- oder Tageswechsel: Auswahl auf "heute" bzw. den 1. setzen
+          if (key != id(cal_month_key) || today != id(cal_today) ||
+              id(cal_sel_day) < 1 || id(cal_sel_day) > dim) {
+            id(cal_month_key) = key;
             id(cal_today) = today;
-            id(cal_sel_day) = today;            // bei Tageswechsel auf "heute" springen
+            id(cal_sel_day) = today > 0 ? today : 1;
           }
       - script.execute: cal_show_day
 
