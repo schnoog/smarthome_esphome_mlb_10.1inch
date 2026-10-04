@@ -1366,7 +1366,7 @@ packages:
       row: 0
       column: 0
       column_span: 1      
-      text: "Kalender"
+      text: ""
       page_id: "cam_page"
       click_page: "cam_page"
 

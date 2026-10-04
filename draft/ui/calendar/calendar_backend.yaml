@@ -1,0 +1,177 @@
+# =====================================================================
+#  ESPHome – Kalender-Backend (als Package einbinden)
+#
+#  packages:
+#    calendar: !include
+#      file: calendar_backend.yaml
+#      vars:
+#        cal_sensor: sensor.display_kalender
+#
+#  Erwartet im Widget: buttonmatrix id: cal_matrix,
+#                      labels cal_title_label, cal_day_header, cal_event_list
+# =====================================================================
+
+globals:
+  - id: cal_offset          # Spalte des 1. (0 = Montag)
+    type: int
+    initial_value: "0"
+  - id: cal_dim             # Tage im Monat
+    type: int
+    initial_value: "0"
+  - id: cal_today
+    type: int
+    initial_value: "0"
+  - id: cal_sel_day         # aktuell gewählter Tag (Terminliste rechts)
+    type: int
+    initial_value: "0"
+
+text_sensor:
+  - platform: homeassistant
+    id: cal_title
+    entity_id: ${cal_sensor}
+    attribute: title
+    internal: true
+    on_value:
+      - lvgl.label.update:
+          id: cal_title_label
+          text: !lambda return x;
+      - script.execute: cal_show_day
+
+  - platform: homeassistant
+    id: cal_grid
+    entity_id: ${cal_sensor}
+    attribute: grid
+    internal: true
+    on_value:
+      - script.execute: cal_render
+
+  - platform: homeassistant
+    id: cal_days
+    entity_id: ${cal_sensor}
+    attribute: days
+    internal: true
+    on_value:
+      - script.execute: cal_render
+
+  - platform: homeassistant
+    id: cal_events
+    entity_id: ${cal_sensor}
+    attribute: events
+    internal: true
+    on_value:
+      - script.execute: cal_show_day
+
+script:
+  # -------------------------------------------------------------------
+  #  Baut die Button-Map der Matrix neu auf (4–6 Wochenzeilen)
+  # -------------------------------------------------------------------
+  - id: cal_render
+    mode: queued
+    then:
+      - lambda: |-
+          // Speicher muss statisch sein: LVGL kopiert die Map NICHT
+          static char labels[42][16];
+          static const char *btn_map[42 + 5 + 1];
+
+          int offset = -1, dim = 0, today = 0;
+          if (sscanf(id(cal_grid).state.c_str(), "%d;%d;%d", &offset, &dim, &today) != 3 ||
+              offset < 0 || offset > 6 || dim < 28 || dim > 31) {
+            return;  // noch keine gültigen Daten aus HA
+          }
+
+          // Termintage -> Bitmaske
+          uint32_t mask = 0;
+          int v = 0; bool in_num = false;
+          for (char c : id(cal_days).state + ";") {
+            if (c >= '0' && c <= '9') { v = v * 10 + (c - '0'); in_num = true; }
+            else {
+              if (in_num && v >= 1 && v <= 31) mask |= (1UL << v);
+              v = 0; in_num = false;
+            }
+          }
+
+          const int rows = (offset + dim + 6) / 7;   // 4..6
+          const int cells = rows * 7;
+
+          int k = 0;
+          for (int i = 0; i < cells; i++) {
+            int day = i - offset + 1;
+            if (day >= 1 && day <= dim) {
+              if (day == today) snprintf(labels[i], sizeof(labels[i]), "#FFB300 %d#", day);
+              else              snprintf(labels[i], sizeof(labels[i]), "%d", day);
+            } else {
+              strcpy(labels[i], " ");   // NICHT "" – das ist der Map-Terminator!
+            }
+            btn_map[k++] = labels[i];
+            if (i % 7 == 6 && i != cells - 1) btn_map[k++] = "\n";
+          }
+          btn_map[k] = "";
+
+          lv_obj_t *m = id(cal_matrix)->obj;
+          lv_buttonmatrix_set_map(m, btn_map);
+          // In C++ ergibt "Enum | Enum" ein int -> zurück auf den Enum-Typ casten
+          lv_buttonmatrix_clear_button_ctrl_all(m, (lv_buttonmatrix_ctrl_t)(
+              LV_BUTTONMATRIX_CTRL_HIDDEN | LV_BUTTONMATRIX_CTRL_CHECKED |
+              LV_BUTTONMATRIX_CTRL_RECOLOR | LV_BUTTONMATRIX_CTRL_DISABLED));
+          for (int i = 0; i < cells; i++) {
+            int day = i - offset + 1;
+            if (day < 1 || day > dim) {           // Leerzellen: Platz bleibt, nicht sichtbar
+              lv_buttonmatrix_set_button_ctrl(m, i, LV_BUTTONMATRIX_CTRL_HIDDEN);
+              continue;
+            }
+            if (mask & (1UL << day)) lv_buttonmatrix_set_button_ctrl(m, i, LV_BUTTONMATRIX_CTRL_CHECKED);
+            if (day == today)        lv_buttonmatrix_set_button_ctrl(m, i, LV_BUTTONMATRIX_CTRL_RECOLOR);
+          }
+
+          id(cal_offset) = offset;
+          id(cal_dim) = dim;
+          if (today != id(cal_today) || id(cal_sel_day) < 1 || id(cal_sel_day) > dim) {
+            id(cal_today) = today;
+            id(cal_sel_day) = today;            // bei Tageswechsel auf "heute" springen
+          }
+      - script.execute: cal_show_day
+
+  # -------------------------------------------------------------------
+  #  Terminliste für den gewählten Tag
+  # -------------------------------------------------------------------
+  - id: cal_show_day
+    mode: queued
+    then:
+      - lvgl.label.update:
+          id: cal_day_header
+          text: !lambda |-
+            int d = id(cal_sel_day);
+            if (d < 1) return std::string("Termine");
+            const std::string &t = id(cal_title).state;
+            std::string month = t.substr(0, t.find(' '));
+            return std::string(d == id(cal_today) ? "Heute, " : "") +
+                   std::to_string(d) + ". " + month;
+      - lvgl.label.update:
+          id: cal_event_list
+          text: !lambda |-
+            int d = id(cal_sel_day);
+            if (d < 1) return std::string("");
+            char prefix[4];
+            snprintf(prefix, sizeof(prefix), "%02d|", d);
+
+            const std::string &ev = id(cal_events).state;
+            std::string out;
+            size_t pos = 0;
+            while (pos < ev.size()) {
+              size_t nl = ev.find('\n', pos);
+              if (nl == std::string::npos) nl = ev.size();
+              if (ev.compare(pos, 3, prefix) == 0) {
+                size_t p2 = ev.find('|', pos + 3);
+                if (p2 != std::string::npos && p2 < nl) {
+                  std::string tm = ev.substr(pos + 3, p2 - pos - 3);
+                  out += (tm == "-") ? "ganztags" : tm;
+                  out += "   ";
+                  out += ev.substr(p2 + 1, nl - p2 - 1);
+                  out += "\n";
+                }
+              }
+              pos = nl + 1;
+            }
+            if (out.empty()) return std::string("Keine Termine");
+            out.pop_back();
+            return out;

@@ -1,0 +1,104 @@
+# =====================================================================
+#  Home Assistant – Paket für den Display-Kalender
+#  Ablage z.B. als /config/packages/display_kalender.yaml
+#  (packages: !include_dir_named packages  in configuration.yaml)
+#
+#  Erzeugt: sensor.display_kalender
+#    state       = Anzahl Termin-Einträge im Monat
+#    title       = "Oktober 2026"
+#    grid        = "<offset>;<tage_im_monat>;<heute>"   offset 0 = Montag
+#    days        = "3;7;15;22"           Tage mit Terminen
+#    events      = "03|09:30|Zahnarzt\n07|-|Müll Bio\n..."   ("-" = ganztägig)
+#
+#  Trennzeichen ";" statt "," mit Absicht: "3,7" würde HA sonst als
+#  Tuple parsen.
+# =====================================================================
+template:
+  - triggers:
+      - trigger: homeassistant
+        event: start
+      - trigger: event
+        event_type: event_template_reloaded
+      - trigger: time_pattern
+        minutes: "/15"
+      - trigger: time
+        at: "00:00:05"          # Tageswechsel -> "heute" + Monatswechsel
+    actions:
+      - variables:
+          month_start: "{{ now().replace(day=1, hour=0, minute=0, second=0, microsecond=0) }}"
+          month_end: "{{ (now().replace(day=1, hour=0, minute=0, second=0, microsecond=0) + timedelta(days=32)).replace(day=1) }}"
+
+      - action: calendar.get_events
+        target:
+          entity_id:
+            # >>> hier deine Kalender eintragen <<<
+            - calendar.braun_volker_gmail_com
+            - calendar.feiertage_baden_wurttemberg_calovo
+            - calendar.feiertage_in_deutschland
+            - calendar.geburtstage
+            - calendar.geburtstage_2
+            - calendar.nmoosdorf_googlemail_com
+        data:
+          start_date_time: "{{ month_start }}"
+          end_date_time: "{{ month_end }}"
+        response_variable: cal
+
+      - variables:
+          cal_data: >-
+            {% set m0 = now().date().replace(day=1) %}
+            {% set m1 = (m0 + timedelta(days=32)).replace(day=1) %}
+            {% set ns = namespace(days=[], lines=[]) %}
+            {% for c in cal.values() %}
+              {% for e in c.events %}
+                {% if 'T' in e.start %}
+                  {% set s_dt = as_datetime(e.start) | as_local %}
+                  {% set s = s_dt.date() %}
+                  {% set l = ((as_datetime(e.end) | as_local) - timedelta(seconds=1)).date() %}
+                  {% set t = s_dt.strftime('%H:%M') %}
+                {% else %}
+                  {% set s = strptime(e.start, '%Y-%m-%d').date() %}
+                  {% set l = (strptime(e.end, '%Y-%m-%d') - timedelta(days=1)).date() %}
+                  {% set t = '-' %}
+                {% endif %}
+                {# Klammerzusatz abschneiden: "Reformationstag (regionaler Feiertag)"
+                   und "Reformationstag (schulfrei, ...)" werden so zu einem Eintrag.
+                   Wer die Zusätze behalten will: ".split(' (')[0]" entfernen. #}
+                {% set summ = (e.summary | default('Termin')).split(' (')[0]
+                              .replace('|', '/').replace('\n', ' ').strip()[:40] %}
+                {% for i in range([(l - s).days, 0] | max + 1) %}
+                  {% set d = s + timedelta(days=i) %}
+                  {% if d >= m0 and d < m1 %}
+                    {% if d.day not in ns.days %}
+                      {% set ns.days = ns.days + [d.day] %}
+                    {% endif %}
+                    {# Folgetage mehrtägiger Termine ohne Uhrzeit anzeigen #}
+                    {% set tt = t if d == s else '-' %}
+                    {% set line = '%02d|%s|%s' % (d.day, tt, summ) %}
+                    {% if line not in ns.lines %}
+                      {% set ns.lines = ns.lines + [line] %}
+                    {% endif %}
+                  {% endif %}
+                {% endfor %}
+              {% endfor %}
+            {% endfor %}
+            {{ {'days': ns.days | sort,
+                'lines': (ns.lines | sort)[:80],
+                'dim': (m1 - m0).days,
+                'offset': m0.weekday(),
+                'today': now().day} }}
+
+    sensor:
+      - name: Display Kalender
+        unique_id: display_kalender_monat
+        icon: mdi:calendar-month
+        state: "{{ cal_data.lines | count }}"
+        attributes:
+          title: >-
+            {% set mon = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'] %}{{ mon[now().month - 1] ~ ' ' ~ now().year }}
+          grid: "{{ cal_data.offset }};{{ cal_data.dim }};{{ cal_data.today }}"
+          days: "{{ cal_data.days | join(';') }}"
+          events: >-
+            {{ cal_data.lines | join('\n') }}
+
+
+

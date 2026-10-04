@@ -1,0 +1,138 @@
+# =====================================================================
+#  Kalender-Widget (buttonmatrix) – füllt seinen Eltern-Container komplett
+#
+#  Einbindung als eigene Seite (Layout der Seite egal, flex oder keins):
+#
+#    - id: cal_page
+#      styles: page_style
+#      widgets:
+#        - !include ui/calendar/calendar_widget.yaml
+#
+#  Fonts: Montserrat-Builtins haben keine Umlaute. Für "März" und
+#  Terminnamen einen eigenen Font mit glyphsets (z.B. GF_Latin_Core)
+#  verwenden und unten eintragen.
+# =====================================================================
+obj:
+  id: cal_container
+  width: 100%
+  height: 100%
+  bg_color: 0x1C1C1E
+  radius: 16
+  border_width: 0
+  pad_all: 14
+  scrollable: false
+  layout:
+    type: flex
+    flex_flow: ROW
+    pad_column: 16
+  widgets:
+    # ---------------- linke Seite: Monatsraster ----------------
+    - obj:
+        flex_grow: 2
+        height: 100%
+        bg_opa: TRANSP
+        border_width: 0
+        pad_all: 0
+        scrollable: false
+        layout:
+          type: flex
+          flex_flow: COLUMN
+          pad_row: 6
+        widgets:
+          - label:
+              id: cal_title_label
+              text: "Kalender"
+              text_font: montserrat_28
+              text_color: 0xFFFFFF
+              pad_left: 6
+
+          # Wochentags-Kopfzeile
+          - obj:
+              width: 100%
+              height: SIZE_CONTENT
+              bg_opa: TRANSP
+              border_width: 0
+              pad_all: 0
+              pad_left: 4
+              pad_right: 4
+              scrollable: false
+              layout:
+                type: flex
+                flex_flow: ROW
+                pad_column: 4
+              widgets:
+                - label: { text: "Mo", flex_grow: 1, text_align: CENTER, text_color: 0x8E8E93 }
+                - label: { text: "Di", flex_grow: 1, text_align: CENTER, text_color: 0x8E8E93 }
+                - label: { text: "Mi", flex_grow: 1, text_align: CENTER, text_color: 0x8E8E93 }
+                - label: { text: "Do", flex_grow: 1, text_align: CENTER, text_color: 0x8E8E93 }
+                - label: { text: "Fr", flex_grow: 1, text_align: CENTER, text_color: 0x8E8E93 }
+                - label: { text: "Sa", flex_grow: 1, text_align: CENTER, text_color: 0x8E8E93 }
+                - label: { text: "So", flex_grow: 1, text_align: CENTER, text_color: 0x8E8E93 }
+
+          # Das eigentliche Raster – die Map wird von script cal_render ersetzt
+          - buttonmatrix:
+              id: cal_matrix
+              width: 100%
+              flex_grow: 1
+              bg_opa: TRANSP
+              border_width: 0
+              pad_all: 4
+              pad_row: 4
+              pad_column: 4
+              items:
+                bg_color: 0x2C2C2E
+                bg_opa: COVER
+                text_color: 0xE5E5EA
+                text_font: montserrat_24
+                radius: 10
+                border_width: 0
+                shadow_width: 0
+                checked:                 # Tag mit Termin(en)
+                  bg_color: 0x0A84FF
+                  text_color: 0xFFFFFF
+                pressed:
+                  bg_color: 0x48484A
+              rows:
+                - buttons: [{text: "-"}, {text: "-"}, {text: "-"}, {text: "-"}, {text: "-"}, {text: "-"}, {text: "-"}]
+                - buttons: [{text: "-"}, {text: "-"}, {text: "-"}, {text: "-"}, {text: "-"}, {text: "-"}, {text: "-"}]
+                - buttons: [{text: "-"}, {text: "-"}, {text: "-"}, {text: "-"}, {text: "-"}, {text: "-"}, {text: "-"}]
+                - buttons: [{text: "-"}, {text: "-"}, {text: "-"}, {text: "-"}, {text: "-"}, {text: "-"}, {text: "-"}]
+                - buttons: [{text: "-"}, {text: "-"}, {text: "-"}, {text: "-"}, {text: "-"}, {text: "-"}, {text: "-"}]
+                - buttons: [{text: "-"}, {text: "-"}, {text: "-"}, {text: "-"}, {text: "-"}, {text: "-"}, {text: "-"}]
+              on_click:
+                - lambda: |-
+                    uint16_t b = lv_buttonmatrix_get_selected_button(id(cal_matrix)->obj);
+                    if (b == LV_BUTTONMATRIX_BUTTON_NONE) return;
+                    int day = (int) b - id(cal_offset) + 1;
+                    if (day < 1 || day > id(cal_dim)) return;
+                    id(cal_sel_day) = day;
+                - script.execute: cal_show_day
+
+    # ---------------- rechte Seite: Termine des Tages ----------------
+    - obj:
+        flex_grow: 1
+        height: 100%
+        bg_color: 0x2C2C2E
+        radius: 12
+        border_width: 0
+        pad_all: 12
+        scrollable: true
+        scroll_dir: VER
+        layout:
+          type: flex
+          flex_flow: COLUMN
+          pad_row: 10
+        widgets:
+          - label:
+              id: cal_day_header
+              text: "Termine"
+              text_font: montserrat_24
+              text_color: 0xFFB300
+          - label:
+              id: cal_event_list
+              width: 100%
+              long_mode: WRAP
+              text: ""
+              text_font: montserrat_20
+              text_color: 0xE5E5EA
+              text_line_space: 8
