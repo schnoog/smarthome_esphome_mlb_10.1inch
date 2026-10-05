@@ -30,9 +30,9 @@ esphome:
   name: "homedisplay"
   friendly_name: "MyBigDisplay"
   comment: "MyBigDisplay"
-  platformio_options:
-    build_flags:
-      - "-D LV_USE_CHART=1"
+#  platformio_options:
+#    build_flags:
+#      - "-D LV_USE_CHART=1"
 
   on_boot:
     - priority: 400

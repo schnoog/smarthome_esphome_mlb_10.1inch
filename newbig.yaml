@@ -30,9 +30,9 @@ esphome:
   name: "bigdisplay"
   friendly_name: "MyNewBigDisplay"
   comment: "MyNewBigDisplay"
-  platformio_options:
-    build_flags:
-      - "-D LV_USE_CHART=1"
+#  platformio_options:
+#    build_flags:
+#      - "-D LV_USE_CHART=1"
 
   on_boot:
     - priority: 400
@@ -278,6 +278,16 @@ packages:
       precision: 1
       page_id: "main_page"   
 
+  #now_playing: !include
+  #  file: draft/ui/sendspin/now_playing.yaml
+  #  vars:
+  #    uid: np
+  #    row: 0
+  #    column: 4
+  #    column_span: 2
+  #    row_span: 2
+  #    cover_size: 100
+  #    page_id: "main_page"
 
 #  now_playing: !include
 #    file: draft/ui/sendspin/now_playing.yaml
@@ -1417,6 +1427,42 @@ media_player:
 sendspin:
   id: sendspin_hub
 
+text_sensor:
+  - platform: sendspin
+    name: senspin_title
+    id: sendspin_title
+    type: title
+    on_value:
+      - logger.log:
+          format: "Titel: %s"
+          args: [ 'x.c_str()' ]
+      - lvgl.label.update:
+          id: sendspin_title_label_main
+          text: !lambda 'return x.empty() ? std::string(" ") : x;'
+
+  - platform: sendspin
+    id: sendspin_artist
+    name: sendspin_artist
+    type: artist
+    on_value:
+      - logger.log:
+          format: "Interpret: %s"
+          args: [ 'x.c_str()' ]
+      - lvgl.label.update:
+          id: sendspin_artist_label_main
+          text: !lambda 'return x.empty() ? std::string(" ") : x;'
+
+  - platform: sendspin
+    id: sendspin_album
+    type: album
+    name: sendspin_album
+    on_value:
+      - logger.log:
+          format: "Album: %s"
+          args: [ 'x.c_str()' ]    
+      - lvgl.label.update:
+          id: sendspin_album_label_main
+          text: !lambda 'return x.empty() ? std::string(" ") : x;'
 
 
 
@@ -1430,6 +1476,41 @@ lvgl:
       layout: 4x8
       styles: page_style
       <<: !include esphome-modular-lvgl-buttons/common/swipe_navigation.yaml
+      widgets:
+        # You can use the package section above to add prebuilt button types or build your own custom button from scratch here.
+        - container:
+            id: sendspinbutton_main
+            grid_cell_x_align: stretch
+            grid_cell_y_align: stretch
+            grid_cell_row_pos: 0
+            grid_cell_column_pos: 4
+            grid_cell_row_span: 1
+            grid_cell_column_span: 2
+      #      outline_width: 1   # debug code - This is for visualizing boundaries remove for production
+      #      outline_color: red  # debug code - This is for visualizing boundaries remove for production
+            widgets:
+              - label:
+                  id: sendspin_title_label_main
+                  text: "Titel"
+                  text_font: nunito_36
+                  align: top_right
+
+              - label:
+                  id: sendspin_artist_label_main
+                  text: "Artist"
+                  text_font: nunito_24                  
+                  align: right_mid
+                  
+
+              # Album
+              - label:
+                  id: sendspin_album_label_main
+                  text: "Album"
+                  text_font: nunito_24                  
+                  align: bottom_right
+
+
+
 
     - id: media_page
       layout: 4x8
@@ -1715,6 +1796,14 @@ image:
     resize: 256x150  
 
 
+#  - platform: sendspin
+#    id: sendspin_cover_slot
+#    format: JPEG
+#    type: RGB565
+#    resize: 120x120
+#    current_image:
+#      id: sendspin_cover
+
   - platform: file
     file: "images/tile_bg_erdgeschoss.png"
     id: bg_tile_bg_erdgeschoss
@@ -1798,17 +1887,17 @@ image:
     type: RGB565
     resize: 128x150
 
-  - platform: file
-    file: "images/heizung_zirkulation_an_128_150.png"
-    id: bg_heizung_zirkulation_an
-    type: RGB565
-    resize: 128x150
+  #- platform: file
+  #  file: "images/heizung_zirkulation_an_128_150.png"
+  #  id: bg_heizung_zirkulation_an
+  #  type: RGB565
+  #  resize: 128x150
 
-  - platform: file
-    file: "images/heizung_zirkulation_aus_128_150.png"
-    id: bg_heizung_zirkulation_aus
-    type: RGB565
-    resize: 128x150
+  #- platform: file
+  #  file: "images/heizung_zirkulation_aus_128_150.png"
+  #  id: bg_heizung_zirkulation_aus
+  #  type: RGB565
+  #  resize: 128x150
 
   - platform: file
     file: "images/heizung_automatisch.png"
@@ -1865,11 +1954,11 @@ image:
     type: RGB565
     resize: 256x150
 
-  - platform: file
-    file: "images/solarertrag_heute.png"
-    id: bg_solarertrag_heute
-    type: RGB565
-    resize: 256x150
+  #- platform: file
+  #  file: "images/solarertrag_heute.png"
+  #  id: bg_solarertrag_heute
+  #  type: RGB565
+  #  resize: 256x150
 
   - platform: file
     file: "images/netzbezug_aktuell.png"
@@ -1889,11 +1978,11 @@ image:
     type: RGB565
     resize: 256x150
 
-  - platform: file
-    file: "images/einspeiselimit.png"
-    id: bg_einspeiselimit
-    type: RGB565
-    resize: 256x150
+  #- platform: file
+  #  file: "images/einspeiselimit.png"
+  #  id: bg_einspeiselimit
+  #  type: RGB565
+  #  resize: 256x150
 
   - platform: file
     file: "images/akkuladestand.png"
@@ -1938,7 +2027,6 @@ image:
 
 
 
-
 debug:
   update_interval: 10s
 
@@ -1952,3 +2040,5 @@ sensor:
       name: "PSRAM frei"
     loop_time:
       name: "Loop Time"
+
+
