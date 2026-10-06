@@ -228,7 +228,7 @@ packages:
       column_span: 2
       row_span: 2
       text: "Eingang"
-      camera_url: http://192.168.178.119:8123/local/ramdisk/esp32s3camX_256.jpg
+      camera_url: http://192.168.178.27:180/rd/esp32s3camX_256.jpg
       update_interval: 1s
       image_width: 256
       image_height: 192
@@ -1329,7 +1329,7 @@ packages:
       row_span: 4      
   #      image_url: http://192.168.178.119:8123/local/ramdisk/esp32s3cam.jpg
   #      image_url: http://192.168.178.124:8081/
-      image_url: http://192.168.178.119:8123/local/ramdisk/esp32s3camX.jpg
+      image_url: http://192.168.178.27:180/rd/esp32s3camX.jpg
       update_interval: 1s
       image_width: 800
       image_height: 600

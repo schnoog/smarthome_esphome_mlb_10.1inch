@@ -230,7 +230,7 @@ packages:
       column_span: 2
       row_span: 2
       text: "Eingang"
-      camera_url: http://192.168.178.119:8123/local/ramdisk/esp32s3camX_256.jpg
+      camera_url: http://192.168.178.27:180/rd/esp32s3camX_256.jpg
       update_interval: 1s
       image_width: 256
       image_height: 192
@@ -1355,7 +1355,7 @@ packages:
       row_span: 4      
   #      image_url: http://192.168.178.119:8123/local/ramdisk/esp32s3cam.jpg
   #      image_url: http://192.168.178.124:8081/
-      image_url: http://192.168.178.119:8123/local/ramdisk/esp32s3camX.jpg
+      image_url: http://192.168.178.27:180/rd/esp32s3camX.jpg
       update_interval: 1s
       image_width: 800
       image_height: 600
@@ -1439,6 +1439,14 @@ text_sensor:
       - lvgl.label.update:
           id: sendspin_title_label_main
           text: !lambda 'return x.empty() ? std::string(" ") : x;'
+      - lvgl.label.update:
+          id: sendspin_title_label_media
+          text: !lambda 'return x.empty() ? std::string(" ") : x;'
+      - lvgl.label.update:
+          id: sendspin_title_label_solar
+          text: !lambda 'return x.empty() ? std::string(" ") : x;'
+
+
 
   - platform: sendspin
     id: sendspin_artist
@@ -1451,6 +1459,14 @@ text_sensor:
       - lvgl.label.update:
           id: sendspin_artist_label_main
           text: !lambda 'return x.empty() ? std::string(" ") : x;'
+      - lvgl.label.update:
+          id: sendspin_artist_label_media
+          text: !lambda 'return x.empty() ? std::string(" ") : x;'
+      - lvgl.label.update:
+          id: sendspin_artist_label_solar
+          text: !lambda 'return x.empty() ? std::string(" ") : x;'
+
+
 
   - platform: sendspin
     id: sendspin_album
@@ -1463,8 +1479,12 @@ text_sensor:
       - lvgl.label.update:
           id: sendspin_album_label_main
           text: !lambda 'return x.empty() ? std::string(" ") : x;'
-
-
+      - lvgl.label.update:
+          id: sendspin_album_label_media
+          text: !lambda 'return x.empty() ? std::string(" ") : x;'
+    #  - lvgl.label.update:
+    #      id: sendspin_album_label_solar
+    #      text: !lambda 'return x.empty() ? std::string(" ") : x;'
 
 
 
@@ -1492,7 +1512,7 @@ lvgl:
               - label:
                   id: sendspin_title_label_main
                   text: "Titel"
-                  text_font: nunito_36
+                  text_font: nunito_24
                   align: top_right
 
               - label:
@@ -1516,17 +1536,82 @@ lvgl:
       layout: 4x8
       styles: page_style
       <<: !include esphome-modular-lvgl-buttons/common/swipe_navigation.yaml      
+      widgets:
+        # You can use the package section above to add prebuilt button types or build your own custom button from scratch here.
+        - container:
+            id: sendspinbutton_media
+            grid_cell_x_align: stretch
+            grid_cell_y_align: stretch
+            grid_cell_row_pos: 0
+            grid_cell_column_pos: 2
+            grid_cell_row_span: 1
+            grid_cell_column_span: 2
+      #      outline_width: 1   # debug code - This is for visualizing boundaries remove for production
+      #      outline_color: red  # debug code - This is for visualizing boundaries remove for production
+            widgets:
+              - label:
+                  id: sendspin_title_label_media
+                  text: "Titel"
+                  text_font: nunito_24
+                  align: top_right
 
+              - label:
+                  id: sendspin_artist_label_media
+                  text: "Artist"
+                  text_font: nunito_24                  
+                  align: right_mid
+                  
+
+              # Album
+              - label:
+                  id: sendspin_album_label_media
+                  text: "Album"
+                  text_font: nunito_24                  
+                  align: bottom_right
 
     - id: heating_page
       layout: 4x8
       styles: page_style
       <<: !include esphome-modular-lvgl-buttons/common/swipe_navigation.yaml      
 
+
+
     - id: solar_page
       layout: 4x8
       styles: page_style
       <<: !include esphome-modular-lvgl-buttons/common/swipe_navigation.yaml      
+      widgets:
+        # You can use the package section above to add prebuilt button types or build your own custom button from scratch here.
+        - container:
+            id: sendspinbutton_solar
+            grid_cell_x_align: stretch
+            grid_cell_y_align: stretch
+            grid_cell_row_pos: 0
+            grid_cell_column_pos: 4
+            grid_cell_row_span: 1
+            grid_cell_column_span: 2
+      #      outline_width: 1   # debug code - This is for visualizing boundaries remove for production
+      #      outline_color: red  # debug code - This is for visualizing boundaries remove for production
+            widgets:
+              - label:
+                  id: sendspin_title_label_solar
+                  text: "Titel"
+                  text_font: nunito_24
+                  align: top_right
+
+              - label:
+                  id: sendspin_artist_label_solar
+                  text: "Artist"
+                  text_font: nunito_24                  
+                  align: right_mid
+                  
+
+              # Album
+              - label:
+                  id: sendspin_album_label_solar
+                  text: ""
+                  text_font: nunito_24                  
+                  align: bottom_right
 
 
     - id: cal_page
